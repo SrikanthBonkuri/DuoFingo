@@ -2,6 +2,7 @@ package com.example.duofingo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -54,18 +55,19 @@ public class LoginSignUp extends AppCompatActivity {
             }
         });
 
-        loginRegisterButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isSignUp) {
-                    // do signup things
-                    if (validateUsername() && validateEmail() && validatePassword() && validateFullName()) {
-                        Toast.makeText(LoginSignUp.this, "Registering this user", Toast.LENGTH_SHORT).show();
-                    }
+        loginRegisterButton.setOnClickListener(v -> {
+            if (isSignUp) {
+                // do signup things
+                if (validateUsername() && validateEmail() && validatePassword() && validateFullName()) {
+                    Toast.makeText(LoginSignUp.this, "Registering this user", Toast.LENGTH_SHORT).show();
+                    // post to the database
+                    openDashboardActivity();
+                }
 
-                } else {
-                    // login
-                    Toast.makeText(LoginSignUp.this, "logging this user in", Toast.LENGTH_SHORT).show();
+            } else {
+                if (validateEmail() && validatePassword()) {
+                    // if the information is in the database
+                    openDashboardActivity();
                 }
             }
         });
@@ -122,6 +124,13 @@ public class LoginSignUp extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    private void openDashboardActivity() {
+        Intent intent = new Intent(this, DashboardActivity.class);
+        intent.putExtra("userEmail", email.getText().toString());
+        intent.putExtra("password", password.getText().toString());
+        startActivity(intent);
     }
 
 }
