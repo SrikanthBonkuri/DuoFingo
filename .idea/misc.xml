@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Jai Vignesh M/AndroidStudioProjects/DuoFingo/app/src/main/res/layout/activity_dashboard.xml" value="0.264" />
+        <entry key="..\:/Users/Jai Vignesh M/AndroidStudioProjects/DuoFingo/app/src/main/res/layout/continue_reading_list.xml" value="0.2" />
+        <entry key="..\:/Users/Jai Vignesh M/AndroidStudioProjects/DuoFingo/app/src/main/res/layout/grid_item.xml" value="0.25416666666666665" />
         <entry key="app/src/main/res/drawable/round_button.xml" value="0.215" />
         <entry key="app/src/main/res/layout/activity_dashboard.xml" value="0.32222222222222224" />
         <entry key="app/src/main/res/layout/activity_login_sign_up.xml" value="0.397088623046875" />
