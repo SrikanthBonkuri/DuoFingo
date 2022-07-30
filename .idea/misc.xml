@@ -3,6 +3,15 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/drawable/button_bg.xml" value="0.1" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/activity_chapter_selection.xml" value="0.1" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/activity_dashboard.xml" value="0.17552083333333332" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/activity_qiuz_start.xml" value="0.1" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/activity_quiz_play.xml" value="0.22" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/activity_quiz_result.xml" value="0.17552083333333332" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/correct_answer.xml" value="0.1" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/time_over.xml" value="0.13333333333333333" />
+        <entry key="..\:/Users/srika/StudioProjects/DuoFingo/app/src/main/res/layout/wrong_answer.xml" value="0.1" />
         <entry key="app/src/main/res/drawable/round_button.xml" value="0.215" />
         <entry key="app/src/main/res/layout/activity_dashboard.xml" value="0.32222222222222224" />
         <entry key="app/src/main/res/layout/activity_login_sign_up.xml" value="0.397088623046875" />
