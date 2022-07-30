@@ -12,6 +12,8 @@ public class DashboardActivity extends AppCompatActivity {
     Button topicSelect;
     Button chapterSelect;
     Button dashboardDesign;
+    Button quizPlay;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,6 +27,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         dashboardDesign = findViewById(R.id.dashboard_design);
         dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
+
+        quizPlay = findViewById(R.id.quiz_play);
+        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
     }
 
     private void openTopicSelectActivity() {
@@ -39,6 +44,11 @@ public class DashboardActivity extends AppCompatActivity {
 
     private void openDashboardDesignActivity() {
         Intent intent = new Intent(this, DashDesignActivity.class);
+        startActivity(intent);
+    }
+
+    private void openQuizPlayActivity() {
+        Intent intent = new Intent(this, QuizStartActivity.class);
         startActivity(intent);
     }
 }
