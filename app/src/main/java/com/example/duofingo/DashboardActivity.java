@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class DashboardActivity extends AppCompatActivity {
 
     Button topicSelect;
+<<<<<<< HEAD
     RecyclerView continueReadingRV;
     ArrayList<String> continueReadingDataSource;
 
@@ -20,6 +21,11 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
+=======
+    Button chapterSelect;
+    Button dashboardDesign;
+    Button quizPlay;
+>>>>>>> upstream/master
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +63,34 @@ public class DashboardActivity extends AppCompatActivity {
 
         topicSelect = findViewById(R.id.topic_selection);
         topicSelect.setOnClickListener(v -> openTopicSelectActivity());
+
+        chapterSelect = findViewById(R.id.chapter_selection);
+        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
+
+        dashboardDesign = findViewById(R.id.dashboard_design);
+        dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
+
+        quizPlay = findViewById(R.id.quiz_play);
+        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
     }
 
     private void openTopicSelectActivity() {
         Intent intent = new Intent(this, TopicSelectionActivity.class);
+        startActivity(intent);
+    }
+
+    private void openChaptersSelectActivity() {
+        Intent intent = new Intent(this, ChapterSelectionActivity.class);
+        startActivity(intent);
+    }
+
+    private void openDashboardDesignActivity() {
+        Intent intent = new Intent(this, DashDesignActivity.class);
+        startActivity(intent);
+    }
+
+    private void openQuizPlayActivity() {
+        Intent intent = new Intent(this, QuizStartActivity.class);
         startActivity(intent);
     }
 }
