@@ -1,9 +1,12 @@
 package com.example.duofingo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,9 +14,28 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.auth.User;
+
+import java.util.Objects;
+
 public class LoginSignUp extends AppCompatActivity {
 
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static final String TAG = "DB";
+    private boolean isLoginSuccessful = false;
+    private String dbPassword;
+
     boolean isSignUp;
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch loginSignUpSwitch;
     EditText fullName;
     EditText userName;
@@ -26,6 +48,7 @@ public class LoginSignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_sign_up);
+
 
         isSignUp = false;
         loginSignUpSwitch = findViewById(R.id.login_signup_toggle);
@@ -61,17 +84,75 @@ public class LoginSignUp extends AppCompatActivity {
                 if (validateUsername() && validateEmail() && validatePassword() && validateFullName()) {
                     Toast.makeText(LoginSignUp.this, "Registering this user", Toast.LENGTH_SHORT).show();
                     // post to the database
+                    postToDB(userName.getText().toString(), email.getText().toString(),
+                            password.getText().toString(), fullName.getText().toString());
                     openDashboardActivity();
                 }
 
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-                    openDashboardActivity();
+                    checkLoginCredentials(email.getText().toString(),
+                            password.getText().toString());
+                    if (password.getText().toString().equals(dbPassword)) {
+                        openDashboardActivity();
+                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
+                                .show();
+                    }
+                    else {
+                        Toast.makeText(this, "Unable to login. Check credentials.",
+                                        Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         });
 
+    }
+
+    private void checkLoginCredentials(String email, String password) {
+        db.collection("users").whereEqualTo("email", email).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                dbPassword = document.getString("password");
+                                Log.i(TAG, "User Password from DB " + dbPassword);
+                                if (Objects.equals(dbPassword, password)) {
+                                    Log.i(TAG, "Login successfully");
+                                    isLoginSuccessful = true;
+                                }
+                                else {
+                                    Log.e(TAG, "Credentials don't match");
+                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void postToDB(String userName, String email, String password, String fullName) {
+        UserModel user = new UserModel();
+        user.setUserName(userName);
+        user.setEmail(email);
+        user.setPassword(password);
+        user.setFullName(fullName);
+
+        // TODO: Check if the email is already present in the
+
+        db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.i(TAG, "User Successfully pushed");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.e(TAG, "Unable to create user.");
+            }
+        });
     }
 
     /**
@@ -91,6 +172,7 @@ public class LoginSignUp extends AppCompatActivity {
             email.setError("Invalid email address");
             return false;
         }
+
         return true;
     }
 
