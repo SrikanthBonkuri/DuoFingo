@@ -61,14 +61,14 @@ public class DashboardActivity extends AppCompatActivity {
         topicSelect = findViewById(R.id.topic_selection);
         topicSelect.setOnClickListener(v -> openTopicSelectActivity());
 
-        chapterSelect = findViewById(R.id.chapter_selection);
-        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
-
-        dashboardDesign = findViewById(R.id.dashboard_design);
-        dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
-
-        quizPlay = findViewById(R.id.quiz_play);
-        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
+//        chapterSelect = findViewById(R.id.chapter_selection);
+//        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
+//
+//        dashboardDesign = findViewById(R.id.dashboard_design);
+//        dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
+//
+//        quizPlay = findViewById(R.id.quiz_play);
+//        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
     }
 
     private void openTopicSelectActivity() {
