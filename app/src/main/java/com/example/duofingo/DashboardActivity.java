@@ -13,7 +13,6 @@ import java.util.ArrayList;
 public class DashboardActivity extends AppCompatActivity {
 
     Button topicSelect;
-<<<<<<< HEAD
     RecyclerView continueReadingRV;
     ArrayList<String> continueReadingDataSource;
 
@@ -21,11 +20,9 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
-=======
     Button chapterSelect;
     Button dashboardDesign;
     Button quizPlay;
->>>>>>> upstream/master
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
