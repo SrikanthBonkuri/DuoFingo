@@ -16,20 +16,18 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.LocationRequest;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Source;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -51,13 +49,15 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     Button quizPlay;
 
     TextView locationText;
-
+    String currentEmail;
+    String currentPassword;
 
     /*
     location services stuff
 
      */
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
@@ -66,6 +66,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        currentEmail = savedInstanceState.getString("userEmail");
+        currentPassword = savedInstanceState.getString("password");
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -182,7 +185,10 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             //System.out.println("THIS IS THE CURRENT USER ADDRESS" + addressList.get(0).getAddressLine(0));
             //locationText.setText(addressList.get(0).getAddressLine(0));
             String[] splitAddy = addressList.get(0).getAddressLine(0).split(",");
-            locationText.setText("Current Counrty: " + splitAddy[splitAddy.length - 1]);
+            locationText.setText("Current Country: " + splitAddy[splitAddy.length - 1]);
+
+//            QuerySnapshot res = db.collection("users").get().getResult();
+//            System.out.println("THIS IS THE RESULT" + res);
         } catch (IOException e) {
             e.printStackTrace();
         }
