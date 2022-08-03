@@ -21,18 +21,19 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Source;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DashboardActivity extends AppCompatActivity implements ContinueReadingChapterSelectListener, LocationListener {
 
@@ -52,6 +53,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     String currentEmail;
     String currentPassword;
 
+    private static final String TAG = "DB";
+
     /*
     location services stuff
 
@@ -67,8 +70,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        currentEmail = savedInstanceState.getString("userEmail");
-        currentPassword = savedInstanceState.getString("password");
+        Bundle extras = getIntent().getExtras();
+        currentEmail = extras.getString("userEmail");
+        currentPassword = extras.getString("password");
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -184,11 +188,30 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
             //System.out.println("THIS IS THE CURRENT USER ADDRESS" + addressList.get(0).getAddressLine(0));
             //locationText.setText(addressList.get(0).getAddressLine(0));
-            String[] splitAddy = addressList.get(0).getAddressLine(0).split(",");
-            locationText.setText("Current Country: " + splitAddy[splitAddy.length - 1]);
+            Address addy = addressList.get(0);
+            //addy.getCountryName();
 
-//            QuerySnapshot res = db.collection("users").get().getResult();
-//            System.out.println("THIS IS THE RESULT" + res);
+            locationText.setText("Current Country: " + addy.getCountryName() + "\n" + "current city: " + addy.getLocality());
+            final String[] Id = new String[1];
+
+            db.collection("users").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (Objects.equals(documentSnapshot.get("email"), currentEmail)
+                        && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                            Id[0] = documentSnapshot.getId();
+                        }
+                        //documentReference[0] = db.collection("users").document()
+                    }
+                }
+
+                DocumentReference dr = db.collection("users").document(Id[0]);
+                dr.update("country", addy.getCountryName());
+                dr.update("city", addy.getLocality());
+            });
+
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
