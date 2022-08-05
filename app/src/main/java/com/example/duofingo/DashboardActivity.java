@@ -17,6 +17,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -24,7 +25,6 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,6 +32,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -53,8 +54,12 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     TextView locationText;
     String currentEmail;
     String currentPassword;
+    String currentCountry;
+
+    List<Pair> countryRanks = new ArrayList<>();
 
     Chip heyUsername;
+
 
     private static final String TAG = "DB";
 
@@ -85,6 +90,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     if (Objects.equals(documentSnapshot.get("email"), currentEmail)
                             && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        currentCountry = documentSnapshot.getString("country");
                         break;
                     }
                     //documentReference[0] = db.collection("users").document()
@@ -112,17 +118,48 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         // Recycle View Data for Ranking
         dashBoardRankingDataSource = new ArrayList<>();
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Vignesh", "5", "42"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Mv", "7", "52"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiVm", "17", "172"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiRtre", "21", "212"));
+//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"));
+//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Vignesh", "5", "42"));
+//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Mv", "7", "52"));
+//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiVm", "17", "172"));
+//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiRtre", "21", "212"));
 
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
         dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
         dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
         locationText = findViewById(R.id.location);
+
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    Log.d(TAG, "THIS IS THE CURRENT COUNTRY: " + currentCountry);
+                    if (Objects.equals(documentSnapshot.get("country"), currentCountry)) {
+                        //dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"))
+                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL NAME: " + documentSnapshot.getString("fullName"));
+                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL SCORE: " + documentSnapshot.getLong("userScore"));
+                        countryRanks.add(new Pair((String) documentSnapshot.getString("fullName"), (Long) documentSnapshot.getLong("userScore")));
+                    }
+                }
+            }
+
+            Log.d(TAG, "CURRENT LIST: " + countryRanks );
+
+            if (countryRanks != null) {
+                Collections.sort(countryRanks, (a, b) -> b.score.compareTo(a.score));
+                for (Integer i = 0; i < countryRanks.size(); i++) {
+                    Pair current = countryRanks.get(i);
+                    Integer rank = i + 1;
+
+                    dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet(current.name, rank.toString(), i.toString()));
+                }
+                dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+            }
+
+
+        });
+
 
 //        topicSelect = findViewById(R.id.topic_selection);
 //        topicSelect.setOnClickListener(v -> openTopicSelectActivity(this));
@@ -210,11 +247,12 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             //System.out.println("THIS IS THE CURRENT USER ADDRESS" + addressList.get(0).getAddressLine(0));
             //locationText.setText(addressList.get(0).getAddressLine(0));
             Address addy = addressList.get(0);
-            //addy.getCountryName();
 
-            locationText.setText("Current Country: " + addy.getCountryName() + "\n" + "current city: " + addy.getLocality());
+            currentCountry = addy.getCountryName();
+            //locationText.setText("Current Country: " + addy.getCountryName() + "\n" + "current city: " + addy.getLocality());
             final String[] Id = new String[1];
 
+            // Update the current user's country
             db.collection("users").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
@@ -231,8 +269,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 dr.update("country", addy.getCountryName());
                 dr.update("city", addy.getLocality());
             });
-
-
 
         } catch (IOException e) {
             e.printStackTrace();
