@@ -22,7 +22,7 @@ public class QuizPlayActivity extends AppCompatActivity {
 
     //    timer
     CountDownTimer cTimer = null;
-    long countDownInMilliSecond = 3000;
+    long countDownInMilliSecond = 15000;
     long countDownInterval = 1000;
     long timeLeftMilliSeconds = 0;
 
@@ -150,7 +150,7 @@ public class QuizPlayActivity extends AppCompatActivity {
             }
         });
 
-        tv_noOfQues.setText("$updateQueNo/10");
+        tv_noOfQues.setText(updateQueNo + "/10");
         tv_question.setText(questions.get(qIndex));
 
 
@@ -165,7 +165,7 @@ public class QuizPlayActivity extends AppCompatActivity {
         checkAnswer();
 
             if (updateQueNo < 10) {
-                tv_noOfQues.setText("${updateQueNo + 1}/10");
+                tv_noOfQues.setText(updateQueNo+1 + "/10");
                 updateQueNo++;
             }
             if (qIndex <= questions.size() - 1) {
@@ -199,7 +199,7 @@ public class QuizPlayActivity extends AppCompatActivity {
                 String checkedAnswer = checkedRadioButton.getText().toString();
                 if (checkedAnswer == answers.get(qIndex)) {
                     correct++;
-                    txt_play_score.setText("Score : $correct");
+                    txt_play_score.setText("Score : " + correct);
                     correctAlertDialog();
                     if(cTimer!=null) {
                         cTimer.cancel();
@@ -225,7 +225,7 @@ public class QuizPlayActivity extends AppCompatActivity {
 
         correctOK = view.findViewById(R.id.correct_ok);
         tvScore = view.findViewById(R.id.tvDialog_score);
-        tvScore.setText("Score : $correct");
+        tvScore.setText("Score : " + correct);
 
         AlertDialog alertDialog = builder.create();
 
@@ -303,7 +303,7 @@ public class QuizPlayActivity extends AppCompatActivity {
                 String timer = String.format(Locale.getDefault(), "Time: %02d", second);
                 quiz_timer.setText(timer);
 
-                if (timeLeftMilliSeconds < 10000) {
+                if (timeLeftMilliSeconds < 5000) {
                     quiz_timer.setTextColor(Color.RED);
                 } else {
                     quiz_timer.setTextColor(defaultColor);
