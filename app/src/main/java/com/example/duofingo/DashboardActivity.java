@@ -18,6 +18,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -29,14 +30,27 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DashboardActivity extends AppCompatActivity implements ContinueReadingChapterSelectListener, LocationListener {
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static final String TAG = "DB_DASHBOARD";
+
+
+    String userName;
+    String userEmail;
 
     Button topicSelect;
     RecyclerView continueReadingRV;
@@ -66,6 +80,14 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            Log.i(TAG,"heloo welcome 0");
+            userName = extras.getString("userName");
+            userEmail = extras.getString("userEmail");
+            this.getContinueReadingData(userName);
+        }
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -186,5 +208,32 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void getContinueReadingData(String userId) {
+        Log.i(TAG,"heloo welcome 1");
+        db.collection("user_topics").whereEqualTo("userID", userId).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Log.i(TAG,"heloo welcome 13");
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
+                                Log.i(TAG,"heloo welcome" + document.getString("topicName"));
+//                                dbPassword = document.getString("password");
+//                                Log.i(TAG, "User Password from DB " + dbPassword);
+//                                if (Objects.equals(dbPassword, password)) {
+//                                    Log.i(TAG, "Login successfully");
+//                                    isLoginSuccessful = true;
+//                                }
+//                                else {
+//                                    Log.e(TAG, "Credentials don't match");
+//                                }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
 }

@@ -115,12 +115,14 @@ public class LoginSignUp extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            QuerySnapshot document1 = task.getResult();
                             for (DocumentSnapshot document : task.getResult()) {
                                 dbPassword = document.getString("password");
                                 Log.i(TAG, "User Password from DB " + dbPassword);
                                 if (Objects.equals(dbPassword, password)) {
                                     Log.i(TAG, "Login successfully");
                                     isLoginSuccessful = true;
+                                    userName.setText(document.getString("userName"));
                                 }
                                 else {
                                     Log.e(TAG, "Credentials don't match");
@@ -212,6 +214,7 @@ public class LoginSignUp extends AppCompatActivity {
         Intent intent = new Intent(this, DashboardActivity.class);
         intent.putExtra("userEmail", email.getText().toString());
         intent.putExtra("password", password.getText().toString());
+        intent.putExtra("userName", userName.getText().toString());
         startActivity(intent);
     }
 
