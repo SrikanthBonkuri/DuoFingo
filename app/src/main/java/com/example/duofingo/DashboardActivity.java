@@ -153,8 +153,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         locationText = findViewById(R.id.location);
 
 
-//        topicSelect = findViewById(R.id.topic_selection);
-//        topicSelect.setOnClickListener(v -> openTopicSelectActivity(this));
+        topicSelect = findViewById(R.id.topic_selection);
+        topicSelect.setOnClickListener(v -> openTopicSelectActivity());
 
 //        chapterSelect = findViewById(R.id.chapter_selection);
 //        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
@@ -182,7 +182,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         }
     }
 
-    public void openTopicSelectActivity(View view) {
+    public void openTopicSelectActivity() {
         Intent intent = new Intent(this, TopicSelectionActivity.class);
         startActivity(intent);
     }

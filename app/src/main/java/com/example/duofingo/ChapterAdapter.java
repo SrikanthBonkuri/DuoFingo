@@ -25,7 +25,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
     @NonNull
     @Override
     public ChapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ChapterViewHolder(LayoutInflater.from(context).inflate(R.layout.grid_item, null));
+        return new ChapterViewHolder(LayoutInflater.from(context).inflate(R.layout.slab_item, null));
     }
 
     @Override
