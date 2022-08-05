@@ -118,18 +118,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         // Recycle View Data for Ranking
         dashBoardRankingDataSource = new ArrayList<>();
-//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"));
-//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Vignesh", "5", "42"));
-//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Mv", "7", "52"));
-//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiVm", "17", "172"));
-//        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiRtre", "21", "212"));
-
-        dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
-        dashBoardRankingRv.setHasFixedSize(true);
-        dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
-        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
-        locationText = findViewById(R.id.location);
-
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -156,9 +144,13 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 }
                 dashBoardRankingRv.getAdapter().notifyDataSetChanged();
             }
-
-
         });
+
+        dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
+        dashBoardRankingRv.setHasFixedSize(true);
+        dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
+        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
+        locationText = findViewById(R.id.location);
 
 
 //        topicSelect = findViewById(R.id.topic_selection);
@@ -173,6 +165,10 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 //        quizPlay = findViewById(R.id.quiz_play);
 //        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
 
+
+        /*
+         * Getting permissions from the users
+         */
         if (ContextCompat.checkSelfPermission(
                 getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(
@@ -184,15 +180,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         } else {
             getLocation();
         }
-
-
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//        locationRequest = com.google.android.gms.location.LocationRequest.create();
-//        locationRequest.setInterval(500);
-//        locationRequest.setFastestInterval(500);
-//        locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-
-
     }
 
     public void openTopicSelectActivity(View view) {
