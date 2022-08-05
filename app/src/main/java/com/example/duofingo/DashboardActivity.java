@@ -80,15 +80,10 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     Chip heyUsername;
 
-
-    private static final String TAG = "DB";
-
     /*
     location services stuff
 
      */
-
-    FirebaseFirestore db = FirebaseFirestore.getInstance();
     String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
@@ -103,6 +98,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             Log.i(TAG,"heloo welcome 0");
             userName = extras.getString("userName");
             userEmail = extras.getString("userEmail");
+            // Recycler View populate for continue Reading
+            continueReadingDataSource = new ArrayList<>();
             this.getContinueReadingData(userName);
         }
         currentEmail = extras.getString("userEmail");
@@ -127,19 +124,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         });
 
 
-        // Recycler View populate for continue Reading
-        continueReadingDataSource = new ArrayList<>();
 
-        continueReadingDataSource.add(new ContinueReadingDataSource("2/12"));
-        continueReadingDataSource.add(new ContinueReadingDataSource("1/12"));
-        continueReadingDataSource.add(new ContinueReadingDataSource("4/12"));
-        continueReadingDataSource.add(new ContinueReadingDataSource("5/12"));
-        continueReadingDataSource.add(new ContinueReadingDataSource("10/12"));
 
-        continueReadingRV = findViewById(R.id.continueReadingRecycleView);
-        continueReadingRV.setHasFixedSize(true);
-        continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
-        continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, this));
 
 
         // Recycle View Data for Ranking
@@ -297,7 +283,23 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                         Log.i(TAG,"heloo welcome 13");
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                Log.i(TAG,"heloo welcome" + document.getString("topicName"));
+                                Log.i(TAG,"heloo welcome" + document.get("chapterID"));
+
+                                continueReadingDataSource.add(
+                                        new ContinueReadingDataSource(
+                                                "3",
+                                                document.getString("topicName"),
+                                               "3",
+                                                "5"));
+
+//                                continueReadingDataSource.add(
+//                                        new ContinueReadingDataSource(
+//                                                document.get("chapterID").toString(),
+//                                                document.getString("topicName"),
+//                                                document.get("chapterID").toString(),
+//                                                document.get("total_chapters").toString()));
+
+
 //                                dbPassword = document.getString("password");
 //                                Log.i(TAG, "User Password from DB " + dbPassword);
 //                                if (Objects.equals(dbPassword, password)) {
@@ -308,10 +310,17 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 //                                    Log.e(TAG, "Credentials don't match");
 //                                }
                             }
+                            continueReadingRV = findViewById(R.id.continueReadingRecycleView);
+                            continueReadingRV.setHasFixedSize(true);
+                            continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                            continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
+
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
+
+
     }
 }
