@@ -16,7 +16,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,9 +35,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -65,13 +72,23 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     Button quizPlay;
 
     TextView locationText;
+    String currentEmail;
+    String currentPassword;
+    String currentCountry;
 
+    List<Pair> countryRanks = new ArrayList<>();
+
+    Chip heyUsername;
+
+
+    private static final String TAG = "DB";
 
     /*
     location services stuff
 
      */
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
@@ -88,6 +105,27 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             userEmail = extras.getString("userEmail");
             this.getContinueReadingData(userName);
         }
+        currentEmail = extras.getString("userEmail");
+        currentPassword = extras.getString("password");
+
+        heyUsername = findViewById(R.id.chipForProfile);
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
+                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        currentCountry = documentSnapshot.getString("country");
+                        break;
+                    }
+                    //documentReference[0] = db.collection("users").document()
+                }
+            }
+
+
+        });
+
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -106,11 +144,33 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         // Recycle View Data for Ranking
         dashBoardRankingDataSource = new ArrayList<>();
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Vignesh", "5", "42"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Mv", "7", "52"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiVm", "17", "172"));
-        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("JaiRtre", "21", "212"));
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    Log.d(TAG, "THIS IS THE CURRENT COUNTRY: " + currentCountry);
+                    if (Objects.equals(documentSnapshot.get("country"), currentCountry)) {
+                        //dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"))
+                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL NAME: " + documentSnapshot.getString("fullName"));
+                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL SCORE: " + documentSnapshot.getLong("userScore"));
+                        countryRanks.add(new Pair((String) documentSnapshot.getString("fullName"), (Long) documentSnapshot.getLong("userScore")));
+                    }
+                }
+            }
+
+            Log.d(TAG, "CURRENT LIST: " + countryRanks );
+
+            if (countryRanks != null) {
+                Collections.sort(countryRanks, (a, b) -> b.score.compareTo(a.score));
+                for (Integer i = 0; i < countryRanks.size(); i++) {
+                    Pair current = countryRanks.get(i);
+                    Integer rank = i + 1;
+
+                    dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet(current.name, rank.toString(), i.toString()));
+                }
+                dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+            }
+        });
 
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
@@ -118,8 +178,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
         locationText = findViewById(R.id.location);
 
-//        topicSelect = findViewById(R.id.topic_selection);
-//        topicSelect.setOnClickListener(v -> openTopicSelectActivity(this));
+
+        topicSelect = findViewById(R.id.topic_selection);
+        topicSelect.setOnClickListener(v -> openTopicSelectActivity());
 
 //        chapterSelect = findViewById(R.id.chapter_selection);
 //        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
@@ -130,6 +191,10 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 //        quizPlay = findViewById(R.id.quiz_play);
 //        quizPlay.setOnClickListener(v -> openQuizPlayActivity());
 
+
+        /*
+         * Getting permissions from the users
+         */
         if (ContextCompat.checkSelfPermission(
                 getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(
@@ -141,18 +206,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         } else {
             getLocation();
         }
-
-
-//        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-//        locationRequest = com.google.android.gms.location.LocationRequest.create();
-//        locationRequest.setInterval(500);
-//        locationRequest.setFastestInterval(500);
-//        locationRequest.setPriority(Priority.PRIORITY_HIGH_ACCURACY);
-
-
     }
 
-    public void openTopicSelectActivity(View view) {
+    public void openTopicSelectActivity() {
         Intent intent = new Intent(this, TopicSelectionActivity.class);
         startActivity(intent);
     }
@@ -203,8 +259,30 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             List<Address> addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(),1);
             //System.out.println("THIS IS THE CURRENT USER ADDRESS" + addressList.get(0).getAddressLine(0));
             //locationText.setText(addressList.get(0).getAddressLine(0));
-            String[] splitAddy = addressList.get(0).getAddressLine(0).split(",");
-            locationText.setText("Current Counrty: " + splitAddy[splitAddy.length - 1]);
+            Address addy = addressList.get(0);
+
+            currentCountry = addy.getCountryName();
+            //locationText.setText("Current Country: " + addy.getCountryName() + "\n" + "current city: " + addy.getLocality());
+            final String[] Id = new String[1];
+
+            // Update the current user's country
+            db.collection("users").get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (Objects.equals(documentSnapshot.get("email"), currentEmail)
+                        && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                            Id[0] = documentSnapshot.getId();
+                            break;
+                        }
+                        //documentReference[0] = db.collection("users").document()
+                    }
+                }
+
+                DocumentReference dr = db.collection("users").document(Id[0]);
+                dr.update("country", addy.getCountryName());
+                dr.update("city", addy.getLocality());
+            });
+
         } catch (IOException e) {
             e.printStackTrace();
         }

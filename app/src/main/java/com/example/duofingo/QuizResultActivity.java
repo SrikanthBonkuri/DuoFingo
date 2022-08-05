@@ -40,10 +40,10 @@ public class QuizResultActivity extends AppCompatActivity {
         tvSkip = findViewById(R.id.tvSkip);
         tvPlayAgain = findViewById(R.id.tvPlayAgain);
 
-        tvScore.setText("Score: $totalScore");
-        tvright.setText("Correct: $totalScore");
-        tvwrong.setText("Wrong: $wrong");
-        tvSkip.setText("Skip: $skip");
+        tvScore.setText("Score: " + totalScore);
+        tvright.setText("Correct: " + totalScore);
+        tvwrong.setText("Wrong: " + wrong);
+        tvSkip.setText("Skip: " + skip);
         if (totalScore >= 6) {
             Toast.makeText(this, "Wow Great", Toast.LENGTH_SHORT).show();
         } else {

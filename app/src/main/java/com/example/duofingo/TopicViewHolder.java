@@ -11,6 +11,7 @@ public class TopicViewHolder extends RecyclerView.ViewHolder{
 
     public TextView topicName;
     public RelativeLayout cardRelativeLayout;
+    String actualTopicName;
 
     public TopicViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -20,7 +21,7 @@ public class TopicViewHolder extends RecyclerView.ViewHolder{
     }
 
     public void bindThisData(String dataToBind) {
-        // extracting name and URL
+        actualTopicName = dataToBind;
         this.topicName.setText(dataToBind);
 
     }

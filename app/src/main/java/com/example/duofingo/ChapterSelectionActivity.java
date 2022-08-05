@@ -10,6 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChapterSelectionActivity extends AppCompatActivity {
 
@@ -22,17 +25,23 @@ public class ChapterSelectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_selection);
 
-        chapters.add("Chapter 1 - Working Capital Management");
-        chapters.add("Chapter 2 - Cash Flow");
-        chapters.add("Chapter 3 - Interest Rates");
-        chapters.add("Chapter 4 - Marketing Partnership");
+        Bundle extras = getIntent().getExtras();
+        String currentTopic = extras.getString("topic");
+
+        TopicNameToChapterList topicNameToChapterList = new TopicNameToChapterList();
+
+        Map<String, String[]> map = topicNameToChapterList.map;
+
+        String[] chapterNames = map.get(currentTopic);
+
+        chapters.addAll(Arrays.asList(chapterNames));
 
         chapterRecyclerView = findViewById(R.id.chapter_recycler_view);
         //topicRecyclerView.setHasFixedSize(true);
         //GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 1);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChapterSelectionActivity.this);
         chapterRecyclerView.setLayoutManager(linearLayoutManager);
-        chapterRecyclerView.setAdapter(new TopicAdapter(chapters, ChapterSelectionActivity.this));
+        chapterRecyclerView.setAdapter(new ChapterAdapter(chapters, ChapterSelectionActivity.this));
 
     }
 }
