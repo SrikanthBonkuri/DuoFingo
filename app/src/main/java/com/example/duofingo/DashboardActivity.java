@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,6 +54,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     String currentEmail;
     String currentPassword;
 
+    Chip heyUsername;
+
     private static final String TAG = "DB";
 
     /*
@@ -73,6 +76,24 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         Bundle extras = getIntent().getExtras();
         currentEmail = extras.getString("userEmail");
         currentPassword = extras.getString("password");
+
+        heyUsername = findViewById(R.id.chipForProfile);
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
+                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        break;
+                    }
+                    //documentReference[0] = db.collection("users").document()
+                }
+            }
+
+
+        });
+
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -200,6 +221,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                         if (Objects.equals(documentSnapshot.get("email"), currentEmail)
                         && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                             Id[0] = documentSnapshot.getId();
+                            break;
                         }
                         //documentReference[0] = db.collection("users").document()
                     }
