@@ -22,26 +22,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.LocationRequest;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -80,10 +70,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     Chip heyUsername;
 
-    /*
-    location services stuff
-
-     */
     String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
@@ -98,9 +84,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             Log.i(TAG,"heloo welcome 0");
             userName = extras.getString("userName");
             userEmail = extras.getString("userEmail");
-            // Recycler View populate for continue Reading
-            continueReadingDataSource = new ArrayList<>();
-            this.getContinueReadingData(userName);
+
         }
         currentEmail = extras.getString("userEmail");
         currentPassword = extras.getString("password");
@@ -123,8 +107,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         });
 
-
-
+        // Recycler View populate for continue Reading
+        continueReadingDataSource = new ArrayList<>();
+        this.getContinueReadingData(userName);
 
 
 
@@ -280,35 +265,17 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Log.i(TAG,"heloo welcome 13");
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                Log.i(TAG,"heloo welcome" + document.get("chapterID"));
 
                                 continueReadingDataSource.add(
                                         new ContinueReadingDataSource(
-                                                "3",
+                                                document.get("chapterID").toString(),
                                                 document.getString("topicName"),
-                                               "3",
-                                                "5"));
-
-//                                continueReadingDataSource.add(
-//                                        new ContinueReadingDataSource(
-//                                                document.get("chapterID").toString(),
-//                                                document.getString("topicName"),
-//                                                document.get("chapterID").toString(),
-//                                                document.get("total_chapters").toString()));
+                                                document.get("chapterID").toString(),
+                                                document.get("total_chapters").toString()));
 
 
-//                                dbPassword = document.getString("password");
-//                                Log.i(TAG, "User Password from DB " + dbPassword);
-//                                if (Objects.equals(dbPassword, password)) {
-//                                    Log.i(TAG, "Login successfully");
-//                                    isLoginSuccessful = true;
-//                                }
-//                                else {
-//                                    Log.e(TAG, "Credentials don't match");
-//                                }
                             }
                             continueReadingRV = findViewById(R.id.continueReadingRecycleView);
                             continueReadingRV.setHasFixedSize(true);
