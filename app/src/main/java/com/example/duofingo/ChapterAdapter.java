@@ -1,8 +1,10 @@
 package com.example.duofingo;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,6 +33,13 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
         String currentChapter = lst.get(position);
+
+        holder.cardRelativeLayout.setOnClickListener(v -> {
+            Toast.makeText(context.getApplicationContext(), "Opening activity for this chapter", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context.getApplicationContext(), SpecificChapterActivity.class);
+            context.startActivity(intent);
+        });
+
         holder.bindThisData(currentChapter);
     }
 
