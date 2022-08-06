@@ -123,6 +123,7 @@ public class LoginSignUp extends AppCompatActivity {
                                     Log.i(TAG, "Login successfully");
                                     isLoginSuccessful = true;
                                     userName.setText(document.getString("userName"));
+                                    fullName.setText(document.getString("fullName"));
                                 }
                                 else {
                                     Log.e(TAG, "Credentials don't match");
@@ -215,6 +216,8 @@ public class LoginSignUp extends AppCompatActivity {
         intent.putExtra("userEmail", email.getText().toString());
         intent.putExtra("password", password.getText().toString());
         intent.putExtra("userName", userName.getText().toString());
+        intent.putExtra("fullName", fullName.getText().toString());
+
         startActivity(intent);
     }
 

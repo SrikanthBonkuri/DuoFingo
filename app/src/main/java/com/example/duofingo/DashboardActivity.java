@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import com.google.android.material.chip.Chip;
@@ -50,6 +51,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     String userName;
     String userEmail;
+    String fullName;
 
     Handler textHandler = new Handler();
     Button topicSelect;
@@ -60,6 +62,12 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
+
+
+    // For global rank.
+    RecyclerView dashBoardRankingGlobalRv;
+    ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingGlobalDataSource;
+
     Button chapterSelect;
     Button dashboardDesign;
     Button quizPlay;
@@ -79,6 +87,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     LocationManager lm;
 
+    TextView scoreView;
+    int myScore = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +100,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             Log.i(TAG,"heloo welcome 0");
             userName = extras.getString("userName");
             userEmail = extras.getString("userEmail");
+            fullName = extras.getString("fullName");
 
         }
         currentEmail = extras.getString("userEmail");
@@ -96,6 +108,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         progressBar = findViewById(R.id.rankingsProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
+        scoreView = findViewById(R.id.chipForLevel);
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -103,7 +116,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     if (Objects.equals(documentSnapshot.get("email"), currentEmail)
                             && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        scoreView.setText(documentSnapshot.get("userScore").toString());
                         currentCountry = documentSnapshot.getString("country");
+                        Log.d(TAG,"MY COUNTRY"+currentCountry);
                         break;
                     }
                     //documentReference[0] = db.collection("users").document()
@@ -116,6 +131,11 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
         this.getContinueReadingData(userName);
+
+//        Recycler view data for global rank
+
+        dashBoardRankingGlobalDataSource = new ArrayList<>();
+        this.getGlobalRankingData(userName);
 
 
 
@@ -137,7 +157,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
         dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
-        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
+        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this, fullName));
         locationText = findViewById(R.id.location);
 
 
@@ -157,6 +177,41 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         /*
          * Getting permissions from the users
          */
+
+    }
+
+    private void getGlobalRankingData(String userId) {
+
+        Log.i(TAG,"Getting global ranking data");
+        db.collection("users")
+                .orderBy("userScore", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int rankIndex = 1;
+                            for (DocumentSnapshot document : task.getResult()) {
+
+                                dashBoardRankingGlobalDataSource.add(
+                                        new DashBoardRankingDataSourceSet(
+                                                document.getString("fullName"),
+                                                Integer.toString(rankIndex),
+                                                document.getString("country")));
+                                rankIndex++;
+
+                            }
+                            dashBoardRankingGlobalRv = findViewById(R.id.dashBoardRankingRecycleView_global);
+                            dashBoardRankingGlobalRv.setHasFixedSize(true);
+                            dashBoardRankingGlobalRv.setLayoutManager(new LinearLayoutManager(DashboardActivity.this));
+                            dashBoardRankingGlobalRv.setAdapter(new DashBoardRankingGlobalAdapter(dashBoardRankingGlobalDataSource, DashboardActivity.this, fullName));
+
+                        } else {
+                            Log.d(TAG, "Error getting documents for global rank: ", task.getException());
+                        }
+                    }
+                });
+
 
     }
 
@@ -319,8 +374,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     }
 
     private void getContinueReadingData(String userId) {
-        Log.i(TAG,"heloo welcome 1");
-        db.collection("user_topics").whereEqualTo("userID", userId).get()
+        Log.i(TAG,"Getting continue reading data");
+        db.collection("user_topics").whereEqualTo("userID", userId)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

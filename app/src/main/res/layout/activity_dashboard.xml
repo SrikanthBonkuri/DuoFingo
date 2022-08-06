@@ -259,7 +259,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginBottom="18dp"
                     android:layout_weight="1"
-                    android:text="Global Rank"
+                    android:text="Country Name"
                     android:textAlignment="center"
                     android:textSize="14sp" />
 
@@ -307,6 +307,91 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.485" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/dashBoardRankingListIndivCardHeadGlobal"
+            style="@style/Widget.MaterialComponents.CardView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            app:cardElevation="20dp"
+            app:layout_constraintBottom_toTopOf="@id/dashboard_card_ranking_global"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dashboard_card_ranking">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+                <TextView
+                    android:id="@+id/dashBoardRankingListUsernameHeadGlobal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginEnd="22dp"
+                    android:text="UserName"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/dashBoardRankingListRankHeadGlobal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_weight="1"
+                    android:text="Global Rank"
+                    android:textAlignment="center"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/dashBoardRankingListRankHeadGlobalCountryName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginBottom="18dp"
+                    android:layout_weight="1"
+                    android:text="Country Name"
+                    android:textAlignment="center"
+                    android:textSize="14sp" />
+
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/dashboard_card_ranking_global"
+            android:layout_width="0dp"
+            android:layout_height="150dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:minHeight="150dp"
+            app:cardElevation="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.6"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/dashBoardRankingListIndivCardHeadGlobal"
+            tools:ignore="MissingConstraints">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/dashBoardRankingRecycleView_global"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scrollbars="horizontal" />
+
+<!--            <ProgressBar-->
+<!--                android:id="@+id/rankingsProgressBar"-->
+<!--                style="?android:attr/progressBarStyle"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content" />-->
+
+        </com.google.android.material.card.MaterialCardView>
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

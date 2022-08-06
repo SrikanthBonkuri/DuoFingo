@@ -16,11 +16,11 @@ public class DashBoardRankingDataSourceSet {
         return userName;
     }
 
-    public String getCountryRank() {
+    public String getRank() {
         return countryRank;
     }
 
-    public String getGlobalRank() {
+    public String getCountry() {
         return globalRank;
     }
 }
