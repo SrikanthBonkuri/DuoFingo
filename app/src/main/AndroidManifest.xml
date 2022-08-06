@@ -18,6 +18,9 @@
         android:theme="@style/Theme.DuoFingo"
         tools:targetApi="31">
         <activity
+            android:name=".DiscussionBoard"
+            android:exported="false" />
+        <activity
             android:name=".SpecificChapterActivity"
             android:exported="false" />
         <activity
