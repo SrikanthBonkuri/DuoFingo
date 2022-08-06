@@ -220,8 +220,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         startActivity(intent);
     }
 
-    public void openChaptersSelectActivity() {
+    public void openChaptersSelectActivity(String topicName) {
         Intent intent = new Intent(this, ChapterSelectionActivity.class);
+        intent.putExtra("topic", topicName);
         startActivity(intent);
     }
 
@@ -263,8 +264,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 //        runRankingThread();
 //    }
 
-    public void onSelectChapter(ContinueReadingDataSource link) {
-        this.openChaptersSelectActivity();
+    @Override
+    public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
+        this.openChaptersSelectActivity(continueReadingData.getTopicName());
     }
 
     @Override

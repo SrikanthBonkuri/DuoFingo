@@ -22,7 +22,7 @@ public class TopicSelectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_topic_selection);
         topics.add("Budgeting");
         topics.add("Investing");
-        topics.add("Tax");
+        topics.add("Taxes");
         topics.add("Debt");
         topics.add("Home Ownership");
         topics.add("Savings");

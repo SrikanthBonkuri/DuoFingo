@@ -18,7 +18,7 @@ public class TopicNameToChapterList {
     public TopicNameToChapterList() {
         map.put("Budgeting", budgetingArray);
         map.put("Investing", investingArray);
-        map.put("Tax", taxArray);
+        map.put("Taxes", taxArray);
         map.put("Debt", debtArray);
         map.put("Home Ownership", homeOwnershipArray);
         map.put("Savings", savingsArray);

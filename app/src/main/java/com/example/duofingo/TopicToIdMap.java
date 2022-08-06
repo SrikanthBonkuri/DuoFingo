@@ -8,7 +8,7 @@ public class TopicToIdMap {
     public TopicToIdMap() {
         map.put("Budgeting", 1);
         map.put("Investing", 2);
-        map.put("Tax", 3);
+        map.put("Taxes", 3);
         map.put("Debt", 4);
         map.put("Home Ownership", 5);
         map.put("Savings", 6);
