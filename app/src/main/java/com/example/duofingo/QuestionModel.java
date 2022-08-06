@@ -7,7 +7,7 @@ public class QuestionModel {
     public String question;
     public String difficulty;
     public String tag;
-    public String topicID;
+    public String topicName;
     public String[] answers;
 
     public void setChapterID(String chapterID) {
@@ -30,8 +30,8 @@ public class QuestionModel {
         this.tag = tag;
     }
 
-    public void setTopicID(String topicID) {
-        this.topicID = topicID;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
     public void setAnswers(String[] answers) {
