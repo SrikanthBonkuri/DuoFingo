@@ -11,6 +11,7 @@ public class ChapterViewHolder extends RecyclerView.ViewHolder{
 
     public TextView chapterName;
     public RelativeLayout cardRelativeLayout;
+    String actualChapterName;
 
     public ChapterViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -21,6 +22,7 @@ public class ChapterViewHolder extends RecyclerView.ViewHolder{
 
     public void bindThisData(String dataToBind) {
         // extracting name and URL
+        actualChapterName = dataToBind;
         this.chapterName.setText(dataToBind);
 
     }
