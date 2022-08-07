@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
 
@@ -18,6 +19,8 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
 
     // the context
     private final Context context;
+
+    String currentChapter;
 
     public ChapterAdapter(ArrayList<String> lst, Context context) {
         this.lst = lst;
@@ -35,8 +38,9 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
         String currentChapter = lst.get(position);
 
         holder.cardRelativeLayout.setOnClickListener(v -> {
-            Toast.makeText(context.getApplicationContext(), "Opening activity for this chapter", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(), "Opening" + holder.actualChapterName, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context.getApplicationContext(), SpecificChapterActivity.class);
+            intent.putExtra("chapter", holder.actualChapterName);
             context.startActivity(intent);
         });
 
