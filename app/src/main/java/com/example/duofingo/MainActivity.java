@@ -1,27 +1,33 @@
 package com.example.duofingo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button getStarted;
+    Button getStarted, discussions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         getStarted = findViewById(R.id.get_started_button);
-        getStarted.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openLoginSignUp();
+        discussions = findViewById(R.id.discussions);
+
+        discussions.setOnClickListener(v -> {
+                Log.i("LOG", "In Main");
+                Intent intent = new Intent(MainActivity.this,
+                        DiscussionBoard.class);
+                intent.putExtra("username", "ABC");
+                startActivity(intent);
             }
-        });
+        );
+
+        getStarted.setOnClickListener(v -> openLoginSignUp());
     }
 
     public void openLoginSignUp() {

@@ -11,6 +11,10 @@ public class UserModel {
     public String profilePictureID;
     public int userScore;
 
+    public String getFullName() {
+        return fullName;
+    }
+
     public void setUserName(String userName) {
         this.userName = userName;
     }
