@@ -15,7 +15,11 @@ public class ChatMessage {
         // Initialize to current time
         messageTime = new Date().getTime();
     }
-
+    public ChatMessage(String messageText, String messageUser, long timestamp) {
+        this.messageText = messageText;
+        this.messageUser = messageUser;
+        this.messageTime = timestamp;
+    }
     public ChatMessage(){
 
     }

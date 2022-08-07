@@ -1,81 +1,106 @@
 package com.example.duofingo;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.firebase.ui.database.FirebaseListAdapter;
-import com.firebase.ui.database.FirebaseListOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiscussionBoard extends AppCompatActivity {
 
     DatabaseReference mChatData, mUserData;
-    ListView conversationList;
-    FirebaseListAdapter adapter;
-    
+    RecyclerView conversationList;
+    MessageAdapter adapter;
+    List<ChatMessage> chatList;
+    String userName;
+    DatabaseReference database;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_discussion_board);
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            userName = extras.getString("username");
+            if (userName == null) {
+                userName = "SRK";
+            }
+        }
 
-        Log.i("LOG", "In Dicussion Board");
-        conversationList = findViewById(R.id.messages_view);
+        chatList = new ArrayList<>();
+        adapter = new MessageAdapter(DiscussionBoard.this, chatList, userName);
+
+        Log.i("LOG", "In Discussion Board");
+        conversationList = findViewById(R.id.recyclerViewChatList);
+        conversationList.setAdapter(adapter);
+        conversationList.setLayoutManager(new LinearLayoutManager(this));
 
         // Firebase
-        FirebaseDatabase database = FirebaseDatabase.getInstance(
+        database = FirebaseDatabase.getInstance().getReferenceFromUrl(
                 "https://duofingo-58001-default-rtdb.firebaseio.com/");
+        mChatData = database.child("discussion_board");
 
-        mChatData = database.getReference("discussion_board");
-
-        //Add reference to ListView
-        FirebaseListOptions<ChatMessage> options =
-                new FirebaseListOptions.Builder<ChatMessage>()
-                        .setQuery(mChatData, ChatMessage.class)
-                        .setLayout(R.layout.their_message)
-                        .build();
-        Log.i("LOG", options.toString());
-
-        adapter = new FirebaseListAdapter<ChatMessage>(options) {
-            @Override
-            protected void populateView(@NonNull View v, @NonNull ChatMessage model, int position) {
-                Log.i("DB Chats", model.toString());
-                TextView name = findViewById(R.id.name);
-                TextView message = findViewById(R.id.message_body);
-                name.setText(model.getMessageUser());
-                message.setText(model.getMessageText());
-
-            }
-        };
-        Log.i("LOG", adapter.toString());
-
-        conversationList.setAdapter(adapter);
+        Log.i("DB", mChatData.toString());
+        getConversationHistory();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
+    private void getConversationHistory() {
+        mChatData.addValueEventListener(
+            new ValueEventListener() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    updateConversation(snapshot);
+                    adapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
     }
+//        conversationList.setHasFixedSize(true);
+//        conversationList.setLayoutManager(new LinearLayoutManager(this));
+//        conversationList.setAdapter(new MessageAdapter(DiscussionBoard.this, chatList, userName));
 
+    private void updateConversation(DataSnapshot snapshot) {
+        // Clear the current list
+        chatList.clear();
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
+        Log.i("RDB", "here");
+        String message, user;
+        long timestamp;
+
+        for (DataSnapshot currentChat : snapshot.getChildren()) {
+            Log.i("DB", currentChat.getValue().toString());
+            message = currentChat.child("messageText").getValue().toString();
+            user = currentChat.child("messageUser").getValue().toString();
+            timestamp = (long) currentChat.child("messageTime").getValue();
+            ChatMessage chatMessage = new ChatMessage(message, user, timestamp);
+            chatList.add(chatMessage);
+        }
     }
 
     public void sendMessage(View view) {
         EditText input = (EditText)findViewById(R.id.inputText);
         Log.i("DB", "Sending message");
+
         // Read the input field and push a new instance
         // of ChatMessage to the Firebase database
         mChatData.push().setValue(

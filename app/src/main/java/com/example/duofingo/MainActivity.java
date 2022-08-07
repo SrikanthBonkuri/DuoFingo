@@ -23,7 +23,10 @@ public class MainActivity extends AppCompatActivity {
                @Override
                public void onClick(View v) {
                    Log.i("LOG", "In Main");
-                   startActivity(new Intent(MainActivity.this, DiscussionBoard.class));
+                   Intent intent = new Intent(MainActivity.this,
+                           DiscussionBoard.class);
+                   intent.putExtra("username", "SRK");
+                   startActivity(intent);
                }
            }
         );
