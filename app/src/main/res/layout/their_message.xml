@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,9 +16,9 @@
         <TextView
             android:id="@+id/timestamp"
             android:layout_width="wrap_content"
-            android:paddingEnd="5dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
+            android:paddingEnd="5dp"
             android:paddingBottom="4dp"
             android:text="10:00 p.m."
 
@@ -30,17 +30,17 @@
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
-            android:paddingEnd="5dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
+            android:paddingEnd="5dp"
             android:paddingBottom="4dp"
             android:text="Rose"
 
             android:textSize="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/timestamp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/message_body"
-            app:layout_constraintEnd_toStartOf="@id/timestamp"/>
+            app:layout_constraintTop_toBottomOf="@id/message_body" />
 
         <TextView
             android:id="@+id/message_body"
@@ -61,5 +61,4 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-
-</androidx.cardview.widget.CardView>
+</RelativeLayout>

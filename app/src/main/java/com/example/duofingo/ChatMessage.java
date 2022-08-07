@@ -7,11 +7,12 @@ public class ChatMessage {
     private String messageText;
     private String messageUser;
     private long messageTime;
+    private final boolean isMessageTypeIncoming;
 
     public ChatMessage(String messageText, String messageUser) {
         this.messageText = messageText;
         this.messageUser = messageUser;
-
+        this.isMessageTypeIncoming = true;
         // Initialize to current time
         messageTime = new Date().getTime();
     }
@@ -19,9 +20,18 @@ public class ChatMessage {
         this.messageText = messageText;
         this.messageUser = messageUser;
         this.messageTime = timestamp;
+        this.isMessageTypeIncoming = true;
     }
-    public ChatMessage(){
 
+    public boolean isMessageTypeIncoming() {
+        return isMessageTypeIncoming;
+    }
+
+    public ChatMessage(String messageText, String messageUser, long timestamp, boolean flag){
+        this.messageText = messageText;
+        this.messageUser = messageUser;
+        this.messageTime = timestamp;
+        this.isMessageTypeIncoming = flag;
     }
 
     public String getMessageText() {

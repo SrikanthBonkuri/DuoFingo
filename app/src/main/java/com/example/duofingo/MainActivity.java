@@ -3,7 +3,6 @@ package com.example.duofingo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,24 +18,16 @@ public class MainActivity extends AppCompatActivity {
         getStarted = findViewById(R.id.get_started_button);
         discussions = findViewById(R.id.discussions);
 
-        discussions.setOnClickListener(new View.OnClickListener() {
-               @Override
-               public void onClick(View v) {
-                   Log.i("LOG", "In Main");
-                   Intent intent = new Intent(MainActivity.this,
-                           DiscussionBoard.class);
-                   intent.putExtra("username", "SRK");
-                   startActivity(intent);
-               }
-           }
+        discussions.setOnClickListener(v -> {
+                Log.i("LOG", "In Main");
+                Intent intent = new Intent(MainActivity.this,
+                        DiscussionBoard.class);
+                intent.putExtra("username", "ABC");
+                startActivity(intent);
+            }
         );
 
-        getStarted.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openLoginSignUp();
-            }
-        });
+        getStarted.setOnClickListener(v -> openLoginSignUp());
     }
 
     public void openLoginSignUp() {

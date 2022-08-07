@@ -37,9 +37,7 @@ public class DiscussionBoard extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userName = extras.getString("username");
-            if (userName == null) {
-                userName = "SRK";
-            }
+            Log.i("DB username", userName);
         }
 
         chatList = new ArrayList<>();
@@ -91,8 +89,15 @@ public class DiscussionBoard extends AppCompatActivity {
             Log.i("DB", currentChat.getValue().toString());
             message = currentChat.child("messageText").getValue().toString();
             user = currentChat.child("messageUser").getValue().toString();
+            Log.i("DB User", user);
             timestamp = (long) currentChat.child("messageTime").getValue();
-            ChatMessage chatMessage = new ChatMessage(message, user, timestamp);
+            ChatMessage chatMessage;
+            if (userName.equals(user)){
+                chatMessage = new ChatMessage(message, user, timestamp, false);
+            }
+            else {
+                chatMessage = new ChatMessage(message, user, timestamp);
+            }
             chatList.add(chatMessage);
         }
     }
