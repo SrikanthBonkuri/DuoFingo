@@ -59,7 +59,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     ArrayList<ContinueReadingDataSource> continueReadingDataSource;
 
     RecyclerView dashBoardRankingRv;
-    ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
+    ArrayList<CountryRankingDataSourceSet> dashBoardRankingDataSource;
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
 
@@ -150,9 +150,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             ActivityCompat.requestPermissions(DashboardActivity.this,
                     fineLocation, 100);
 
-        } else {
-            getLocation();
         }
+        getLocation();
 
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
@@ -164,9 +163,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         topicSelect = findViewById(R.id.topic_selection);
         topicSelect.setOnClickListener(v -> openTopicSelectActivity());
 
-//        chapterSelect = findViewById(R.id.chapter_selection);
-//        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
-//
 //        dashboardDesign = findViewById(R.id.dashboard_design);
 //        dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
 //
@@ -321,8 +317,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
 
             try {
-
-
                 textHandler.post(() -> {
                     countryRanks.clear();
                     dashBoardRankingDataSource.clear();
@@ -355,7 +349,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                         Pair current = countryRanks.get(i);
                         Integer rank = i + 1;
 
-                        dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet(current.name, rank.toString(), i.toString()));
+                        dashBoardRankingDataSource.add(new CountryRankingDataSourceSet(current.name, rank.toString()));
                     }
                     textHandler.post(() -> dashBoardRankingRv.getAdapter().notifyDataSetChanged());
 
