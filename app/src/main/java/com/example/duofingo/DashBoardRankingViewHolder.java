@@ -13,27 +13,26 @@ import java.util.Objects;
 public class DashBoardRankingViewHolder extends RecyclerView.ViewHolder {
     public TextView userName;
     public TextView countryRank;
-    public TextView country;
-    public RelativeLayout dashBoardRankingListLayout;
+
+    public RelativeLayout countryRankingListLayout;
 
     public DashBoardRankingViewHolder(@NonNull View itemView) {
         super(itemView);
 
-        this.userName = itemView.findViewById(R.id.dashBoardRankingListUsername);
-        this.countryRank = itemView.findViewById(R.id.dashBoardRankingListCountryRank);
-        this.country = itemView.findViewById(R.id.dashBoardRankingListGlobalRank);
-        this.dashBoardRankingListLayout = itemView.findViewById(R.id.dashBoardRankingListLayout);
+        this.userName = itemView.findViewById(R.id.countryRankingListUsername);
+        this.countryRank = itemView.findViewById(R.id.countryRankingListRank);
+
+        this.countryRankingListLayout = itemView.findViewById(R.id.countryRankingListLayout);
     }
 
 
-    public void bindListData(DashBoardRankingDataSourceSet DashBoardRankingDataSource, String myUserName) {
+    public void bindListData(CountryRankingDataSourceSet DashBoardRankingDataSource, String myUserName) {
         if(Objects.equals(DashBoardRankingDataSource.getUserName(), myUserName)) {
             userName.setTextColor(Color.RED);
             countryRank.setTextColor(Color.RED);
-            country.setTextColor(Color.RED);
+
         }
         this.userName.setText(DashBoardRankingDataSource.getUserName());
         countryRank.setText(DashBoardRankingDataSource.getRank());
-        country.setText(DashBoardRankingDataSource.getCountry());
     }
 }

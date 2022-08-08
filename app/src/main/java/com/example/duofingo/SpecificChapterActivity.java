@@ -54,8 +54,8 @@ public class SpecificChapterActivity extends AppCompatActivity {
                         System.out.println(task.isSuccessful());
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-                                System.out.println("if");
-                                chapter_paragraphs.add(document.getString("heading"));
+//                                System.out.println("if");
+//                                chapter_paragraphs.add(document.getString("heading"));
 
                                 List<String> data = (List<String>)document.get("body");
 

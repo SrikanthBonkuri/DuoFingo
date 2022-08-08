@@ -94,7 +94,7 @@ public class LoginSignUp extends AppCompatActivity {
                     // if the information is in the database
                     checkLoginCredentials(email.getText().toString(),
                             password.getText().toString());
-                    if (password.getText().toString().equals(dbPassword)) {
+                    if (password.getText().toString().equals(dbPassword) && isLoginSuccessful) {
                         openDashboardActivity();
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
                                 .show();
@@ -102,6 +102,7 @@ public class LoginSignUp extends AppCompatActivity {
                     else {
                         Toast.makeText(this, "Unable to login. Check credentials.",
                                         Toast.LENGTH_SHORT).show();
+                        //isLoginSuccessful = false;
                     }
                 }
             }
@@ -124,9 +125,6 @@ public class LoginSignUp extends AppCompatActivity {
                                     isLoginSuccessful = true;
                                     userName.setText(document.getString("userName"));
                                     fullName.setText(document.getString("fullName"));
-                                }
-                                else {
-                                    Log.e(TAG, "Credentials don't match");
                                 }
                             }
                         } else {

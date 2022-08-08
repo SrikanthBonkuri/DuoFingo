@@ -11,11 +11,11 @@ import java.util.ArrayList;
 
 public class DashBoardRankingAdapter extends RecyclerView.Adapter<DashBoardRankingViewHolder> {
 
-    private ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
+    private ArrayList<CountryRankingDataSourceSet> dashBoardRankingDataSource;
     private final Context context;
     private final String userName;
 
-    public DashBoardRankingAdapter(ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource, Context context, String userName) {
+    public DashBoardRankingAdapter(ArrayList<CountryRankingDataSourceSet> dashBoardRankingDataSource, Context context, String userName) {
         this.dashBoardRankingDataSource = dashBoardRankingDataSource;
         this.context = context;
         this.userName = userName;
@@ -25,7 +25,7 @@ public class DashBoardRankingAdapter extends RecyclerView.Adapter<DashBoardRanki
     @NonNull
     @Override
     public DashBoardRankingViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new DashBoardRankingViewHolder(LayoutInflater.from(context).inflate(R.layout.dashboard_ranking_list,null));
+        return new DashBoardRankingViewHolder(LayoutInflater.from(context).inflate(R.layout.country_ranking_list,null));
     }
 
     @Override
