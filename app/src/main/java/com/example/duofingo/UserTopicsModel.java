@@ -2,7 +2,7 @@ package com.example.duofingo;
 
 public class UserTopicsModel {
     public String chapterID;
-    public String topicID;
+    public String topicName;
     public int numChapters;
     public int userName;
 
@@ -10,8 +10,8 @@ public class UserTopicsModel {
         this.chapterID = chapterID;
     }
 
-    public void setTopicID(String topicID) {
-        this.topicID = topicID;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
     public void setNumChapters(int numChapters) {
@@ -23,6 +23,5 @@ public class UserTopicsModel {
     }
 
     public UserTopicsModel() {
-
     }
 }

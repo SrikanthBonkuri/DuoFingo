@@ -1,16 +1,8 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -33,11 +25,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -82,6 +69,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     Button dashboardDesign;
     Button quizPlay;
     Button viewDiscussions;
+    Button weeklyQuiz;
+    Button monthlyQuiz;
 
     TextView locationText;
     String currentEmail;
@@ -121,6 +110,32 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         heyUsername = findViewById(R.id.chipForProfile);
         scoreView = findViewById(R.id.chipForLevel);
         viewDiscussions = findViewById(R.id.view_discussions);
+        weeklyQuiz = findViewById(R.id.weeklyQuizButton);
+        monthlyQuiz = findViewById(R.id.monthlyQuizButton);
+
+        weeklyQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this,
+                        QuizPlayActivity.class);
+                intent.putExtra("userName", userName);
+                intent.putExtra("quizType", QuestionType.WEEKLY);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        monthlyQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this,
+                        QuizPlayActivity.class);
+                intent.putExtra("userName", userName);
+                intent.putExtra("quizType", QuestionType.MONTHLY);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         viewDiscussions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,7 +174,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         dashBoardRankingGlobalDataSource = new ArrayList<>();
         this.getGlobalRankingData(userName);
-
 
 
         // Recycle View Data for Ranking

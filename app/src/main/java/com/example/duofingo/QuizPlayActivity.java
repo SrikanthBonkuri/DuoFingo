@@ -1,30 +1,43 @@
 package com.example.duofingo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-
+import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-//import com.techpassmaster.quizappkotlin.databinding.ActivityPlayBinding;
-import java.util.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class QuizPlayActivity extends AppCompatActivity {
 
     //    timer
     CountDownTimer cTimer = null;
-    long countDownInMilliSecond = 15000;
+    long countDownInMilliSecond = 20000;
     long countDownInterval = 1000;
     long timeLeftMilliSeconds = 0;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     ArrayList<String> ColorStateList = new ArrayList<>();
 
@@ -35,6 +48,8 @@ public class QuizPlayActivity extends AppCompatActivity {
     int skip = 0;
     int qIndex = 0;
     int updateQueNo = 1;
+
+    ArrayList<String> userQuestions, userOptions, userAnswers;
 
     ArrayList<String> questions = new ArrayList<>(Arrays.asList(
             "Q.1. If a computer has more than one processor then it is known as?",
@@ -116,12 +131,15 @@ public class QuizPlayActivity extends AppCompatActivity {
     RadioButton checkedRadioButton;
     TextView txt_play_score;
 
+    QuestionType quizType;
+
     Button timeOverOk;
     Button wrongOK;
     Button correctOK;
     TextView tvScore;
     TextView tvWrongDialogCorrectAns;
-
+    String userName;
+    String topicName = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,13 +155,35 @@ public class QuizPlayActivity extends AppCompatActivity {
         tv_noOfQues = findViewById(R.id.tv_noOfQues);
         quiz_timer = findViewById(R.id.quiz_timer);
 
+        Bundle extras = getIntent().getExtras();
+        userName = extras.getString("userName");
+
+        if (QuestionType.WEEKLY == extras.get("quizType"))
+        {
+            quizType = QuestionType.WEEKLY;
+        }
+        else if (QuestionType.MONTHLY == extras.get("quizType"))
+        {
+            quizType = QuestionType.MONTHLY;
+        }
+        else {
+            topicName = extras.getString("topicName");
+            quizType = QuestionType.CHAPTER;
+        }
+
+        // Load questions data from the DB
+        getQuestionsDataFromDB();
+        Log.i("Quiz", userQuestions.toString());
+        Log.i("Quiz", userAnswers.toString());
+        Log.i("Quiz", userOptions.toString());
+
         // check options selected or not
         // if selected then selected option correct or wrong
         nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(radiogrp.getCheckedRadioButtonId() == -1) {
-                    Toast.makeText(QuizPlayActivity.this, "Please select an options", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
                 } else {
                     showNextQuestion();
                 }
@@ -153,10 +193,38 @@ public class QuizPlayActivity extends AppCompatActivity {
         tv_noOfQues.setText(updateQueNo + "/10");
         tv_question.setText(questions.get(qIndex));
 
-
         timeLeftMilliSeconds = countDownInMilliSecond;
 
         statCountDownTimer();
+    }
+
+    // This method gets questions, answers and the list of answers.
+    private void getQuestionsDataFromDB() {
+
+        AdaptableQuizContent adaptableQuizContent = new AdaptableQuizContent(quizType, userName,
+                topicName);
+        ArrayList<String> userSpecificQuestions = adaptableQuizContent.getUserAdaptableQuizzes();
+        Log.i("Quiz", userSpecificQuestions.toString());
+
+        db.collection("questions").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (userSpecificQuestions.contains(
+                                documentSnapshot.getString("question"))) {
+                            userQuestions.add(documentSnapshot.getString("question"));
+                            ArrayList<String> options = (ArrayList<String>) documentSnapshot.get("options");
+                            int answerIndex = (int) documentSnapshot.get("answer") - 1;
+                            userOptions.addAll(options);
+                            userAnswers.add(options.get(answerIndex));
+
+                        }
+                    }
+                }
+            }
+        });
+
     }
 
     @SuppressLint("SetTextI18n")
