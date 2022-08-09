@@ -1,5 +1,21 @@
 package com.example.duofingo;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -7,31 +23,15 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -48,18 +48,27 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     String userName;
     String userEmail;
+    String fullName;
 
+    Handler textHandler = new Handler();
     Button topicSelect;
     RecyclerView continueReadingRV;
     ArrayList<ContinueReadingDataSource> continueReadingDataSource;
 
     RecyclerView dashBoardRankingRv;
-    ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingDataSource;
+    ArrayList<CountryRankingDataSourceSet> dashBoardRankingDataSource;
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
+
+
+    // For global rank.
+    RecyclerView dashBoardRankingGlobalRv;
+    ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingGlobalDataSource;
+
     Button chapterSelect;
     Button dashboardDesign;
     Button quizPlay;
+    Button viewDiscussions;
 
     TextView locationText;
     String currentEmail;
@@ -70,9 +79,14 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     Chip heyUsername;
 
+    ProgressBar progressBar;
+
     String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
+
+    TextView scoreView;
+    int myScore = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,12 +98,26 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             Log.i(TAG,"heloo welcome 0");
             userName = extras.getString("userName");
             userEmail = extras.getString("userEmail");
+            fullName = extras.getString("fullName");
 
         }
         currentEmail = extras.getString("userEmail");
         currentPassword = extras.getString("password");
-
+        progressBar = findViewById(R.id.rankingsProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
+        scoreView = findViewById(R.id.chipForLevel);
+        viewDiscussions = findViewById(R.id.view_discussions);
+
+        viewDiscussions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this, DiscussionBoard.class);
+                intent.putExtra("username", userName);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -97,7 +125,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     if (Objects.equals(documentSnapshot.get("email"), currentEmail)
                             && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        scoreView.setText(documentSnapshot.get("userScore").toString());
                         currentCountry = documentSnapshot.getString("country");
+                        Log.d(TAG,"MY COUNTRY"+currentCountry);
                         break;
                     }
                     //documentReference[0] = db.collection("users").document()
@@ -111,51 +141,37 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         continueReadingDataSource = new ArrayList<>();
         this.getContinueReadingData(userName);
 
+//        Recycler view data for global rank
+
+        dashBoardRankingGlobalDataSource = new ArrayList<>();
+        this.getGlobalRankingData(userName);
+
 
 
         // Recycle View Data for Ranking
         dashBoardRankingDataSource = new ArrayList<>();
 
-        db.collection("users").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    Log.d(TAG, "THIS IS THE CURRENT COUNTRY: " + currentCountry);
-                    if (Objects.equals(documentSnapshot.get("country"), currentCountry)) {
-                        //dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1", "12"))
-                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL NAME: " + documentSnapshot.getString("fullName"));
-                        //Log.d(TAG, "THIS IS THE CURRENT USER'S FULL SCORE: " + documentSnapshot.getLong("userScore"));
-                        countryRanks.add(new Pair((String) documentSnapshot.getString("fullName"), (Long) documentSnapshot.getLong("userScore")));
-                    }
-                }
-            }
+        if (ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(
+                getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(DashboardActivity.this,
+                    fineLocation, 100);
 
-            Log.d(TAG, "CURRENT LIST: " + countryRanks );
-
-            if (countryRanks != null) {
-                Collections.sort(countryRanks, (a, b) -> b.score.compareTo(a.score));
-                for (Integer i = 0; i < countryRanks.size(); i++) {
-                    Pair current = countryRanks.get(i);
-                    Integer rank = i + 1;
-
-                    dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet(current.name, rank.toString(), i.toString()));
-                }
-                dashBoardRankingRv.getAdapter().notifyDataSetChanged();
-            }
-        });
+        }
+        getLocation();
 
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
         dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
-        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this));
+        dashBoardRankingRv.setAdapter(new DashBoardRankingAdapter(dashBoardRankingDataSource, this, fullName));
         locationText = findViewById(R.id.location);
 
 
         topicSelect = findViewById(R.id.topic_selection);
         topicSelect.setOnClickListener(v -> openTopicSelectActivity());
 
-//        chapterSelect = findViewById(R.id.chapter_selection);
-//        chapterSelect.setOnClickListener(v -> openChaptersSelectActivity());
-//
 //        dashboardDesign = findViewById(R.id.dashboard_design);
 //        dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
 //
@@ -166,17 +182,42 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         /*
          * Getting permissions from the users
          */
-        if (ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(
-                getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(DashboardActivity.this,
-                    fineLocation, 100);
 
-        } else {
-            getLocation();
-        }
+    }
+
+    private void getGlobalRankingData(String userId) {
+
+        Log.i(TAG,"Getting global ranking data");
+        db.collection("users")
+                .orderBy("userScore", Query.Direction.DESCENDING)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int rankIndex = 1;
+                            for (DocumentSnapshot document : task.getResult()) {
+
+                                dashBoardRankingGlobalDataSource.add(
+                                        new DashBoardRankingDataSourceSet(
+                                                document.getString("fullName"),
+                                                Integer.toString(rankIndex),
+                                                document.getString("country")));
+                                rankIndex++;
+
+                            }
+                            dashBoardRankingGlobalRv = findViewById(R.id.dashBoardRankingRecycleView_global);
+                            dashBoardRankingGlobalRv.setHasFixedSize(true);
+                            dashBoardRankingGlobalRv.setLayoutManager(new LinearLayoutManager(DashboardActivity.this));
+                            dashBoardRankingGlobalRv.setAdapter(new DashBoardRankingGlobalAdapter(dashBoardRankingGlobalDataSource, DashboardActivity.this, fullName));
+
+                        } else {
+                            Log.d(TAG, "Error getting documents for global rank: ", task.getException());
+                        }
+                    }
+                });
+
+
     }
 
     public void openTopicSelectActivity() {
@@ -184,8 +225,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         startActivity(intent);
     }
 
-    public void openChaptersSelectActivity() {
+    public void openChaptersSelectActivity(String topicName) {
         Intent intent = new Intent(this, ChapterSelectionActivity.class);
+        intent.putExtra("topic", topicName);
         startActivity(intent);
     }
 
@@ -219,8 +261,17 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         }
     }
 
-    public void onSelectChapter(ContinueReadingDataSource link) {
-        this.openChaptersSelectActivity();
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        dashBoardRankingDataSource.clear();
+//        dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+//        runRankingThread();
+//    }
+
+    @Override
+    public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
+        this.openChaptersSelectActivity(continueReadingData.getTopicName());
     }
 
     @Override
@@ -233,7 +284,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             Address addy = addressList.get(0);
 
             currentCountry = addy.getCountryName();
-            //locationText.setText("Current Country: " + addy.getCountryName() + "\n" + "current city: " + addy.getLocality());
             final String[] Id = new String[1];
 
             // Update the current user's country
@@ -260,8 +310,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     }
 
     private void getContinueReadingData(String userId) {
-        Log.i(TAG,"heloo welcome 1");
-        db.collection("user_topics").whereEqualTo("userID", userId).get()
+        Log.i(TAG,"Getting continue reading data");
+        db.collection("user_topics").whereEqualTo("userID", userId)
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
