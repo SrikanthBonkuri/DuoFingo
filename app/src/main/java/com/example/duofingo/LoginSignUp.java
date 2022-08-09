@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 
@@ -96,9 +97,9 @@ public class LoginSignUp extends AppCompatActivity {
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-                    checkLoginCredentials(email.getText().toString(),
-                            password.getText().toString());
-                    if (password.getText().toString().equals(dbPassword) && isLoginSuccessful) {
+
+                    if (checkLoginCredentials(email.getText().toString(),
+                            password.getText().toString())) {
                         openDashboardActivity();
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
                                 .show();
@@ -114,30 +115,25 @@ public class LoginSignUp extends AppCompatActivity {
 
     }
 
-    private void checkLoginCredentials(String email, String password) {
+    private boolean checkLoginCredentials(String email, String password) {
 
 
-//        db.collection("users").whereEqualTo("email", email).get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            QuerySnapshot document1 = task.getResult();
-//                            for (DocumentSnapshot document : task.getResult()) {
-//                                dbPassword = document.getString("password");
-//                                Log.i(TAG, "User Password from DB " + dbPassword);
-//                                if (Objects.equals(dbPassword, password)) {
-//                                    Log.i(TAG, "Login successfully");
-//                                    isLoginSuccessful = true;
-//                                    userName.setText(document.getString("userName"));
-//                                    fullName.setText(document.getString("fullName"));
-//                                }
-//                            }
-//                        } else {
-//                            Log.d(TAG, "Error getting documents: ", task.getException());
-//                        }
-//                    }
-//                });
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), email)
+                            && Objects.equals(documentSnapshot.get("password"), password)) {
+
+                        isLoginSuccessful = true;
+                        userName.setText(documentSnapshot.getString("userName"));
+                        fullName.setText(documentSnapshot.getString("fullName"));
+
+                    }
+                }
+            }
+        });
+
+        return isLoginSuccessful;
     }
 
     private void postToDB(String userName, String email, String password, String fullName) {
