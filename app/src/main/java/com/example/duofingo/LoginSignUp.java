@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 
@@ -42,6 +43,7 @@ public class LoginSignUp extends AppCompatActivity {
     EditText password;
     EditText email;
     TextView loginRegisterText;
+    TextView loginAdditionalInformation;
     Button loginRegisterButton;
 
     @Override
@@ -60,6 +62,7 @@ public class LoginSignUp extends AppCompatActivity {
         password = findViewById(R.id.loginPassword);
         email = findViewById(R.id.loginEmail);
         loginRegisterText = findViewById(R.id.loginRegisterText);
+        loginAdditionalInformation = findViewById(R.id.loginAdditionalInformation);
         loginRegisterButton = findViewById(R.id.loginOrRegisterButton);
 
         loginSignUpSwitch.setOnClickListener(v -> {
@@ -69,12 +72,14 @@ public class LoginSignUp extends AppCompatActivity {
                 userName.setVisibility(View.VISIBLE);
                 loginRegisterText.setText("Register");
                 loginRegisterButton.setText("Register");
+                loginAdditionalInformation.setText("Create an account!");
             }
             else {
                 fullName.setVisibility(View.INVISIBLE);
                 userName.setVisibility(View.INVISIBLE);
                 loginRegisterText.setText("Login");
                 loginRegisterButton.setText("Login");
+                loginAdditionalInformation.setText("Please sign in to continue.");
             }
         });
 
@@ -92,9 +97,9 @@ public class LoginSignUp extends AppCompatActivity {
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-                    checkLoginCredentials(email.getText().toString(),
-                            password.getText().toString());
-                    if (password.getText().toString().equals(dbPassword) && isLoginSuccessful) {
+
+                    if (checkLoginCredentials(email.getText().toString(),
+                            password.getText().toString())) {
                         openDashboardActivity();
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
                                 .show();
@@ -110,28 +115,25 @@ public class LoginSignUp extends AppCompatActivity {
 
     }
 
-    private void checkLoginCredentials(String email, String password) {
-        db.collection("users").whereEqualTo("email", email).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot document1 = task.getResult();
-                            for (DocumentSnapshot document : task.getResult()) {
-                                dbPassword = document.getString("password");
-                                Log.i(TAG, "User Password from DB " + dbPassword);
-                                if (Objects.equals(dbPassword, password)) {
-                                    Log.i(TAG, "Login successfully");
-                                    isLoginSuccessful = true;
-                                    userName.setText(document.getString("userName"));
-                                    fullName.setText(document.getString("fullName"));
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
+    private boolean checkLoginCredentials(String email, String password) {
+
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), email)
+                            && Objects.equals(documentSnapshot.get("password"), password)) {
+
+                        isLoginSuccessful = true;
+                        userName.setText(documentSnapshot.getString("userName"));
+                        fullName.setText(documentSnapshot.getString("fullName"));
+
                     }
-                });
+                }
+            }
+        });
+
+        return isLoginSuccessful;
     }
 
     private void postToDB(String userName, String email, String password, String fullName) {
