@@ -55,6 +55,13 @@ public class DiscussionBoard extends AppCompatActivity {
 
         Log.i("DB", mChatData.toString());
         getConversationHistory();
+
+        // Load to last position
+        Log.i("Scroll size", "" + chatList.size());
+        conversationList.setHasFixedSize(true);
+        conversationList.setLayoutManager(new LinearLayoutManager(this));
+        conversationList.setAdapter(new MessageAdapter(DiscussionBoard.this, chatList, userName));
+        conversationList.scrollToPosition(chatList.size()-1);
     }
 
     private void getConversationHistory() {
@@ -73,9 +80,6 @@ public class DiscussionBoard extends AppCompatActivity {
                 }
             });
     }
-//        conversationList.setHasFixedSize(true);
-//        conversationList.setLayoutManager(new LinearLayoutManager(this));
-//        conversationList.setAdapter(new MessageAdapter(DiscussionBoard.this, chatList, userName));
 
     private void updateConversation(DataSnapshot snapshot) {
         // Clear the current list
@@ -100,6 +104,7 @@ public class DiscussionBoard extends AppCompatActivity {
             }
             chatList.add(chatMessage);
         }
+
     }
 
     public void sendMessage(View view) {
@@ -109,7 +114,7 @@ public class DiscussionBoard extends AppCompatActivity {
         // Read the input field and push a new instance
         // of ChatMessage to the Firebase database
         mChatData.push().setValue(
-                new ChatMessage(input.getText().toString(),"SRK")
+                new ChatMessage(input.getText().toString(), userName)
         );
 
         // Clear the input

@@ -24,6 +24,12 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,7 +40,11 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,6 +81,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     Button chapterSelect;
     Button dashboardDesign;
     Button quizPlay;
+    Button viewDiscussions;
 
     TextView locationText;
     String currentEmail;
@@ -108,6 +119,18 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         progressBar = findViewById(R.id.rankingsProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
+        scoreView = findViewById(R.id.chipForLevel);
+        viewDiscussions = findViewById(R.id.view_discussions);
+
+        viewDiscussions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this, DiscussionBoard.class);
+                intent.putExtra("username", userName);
+                startActivity(intent);
+                finish();
+            }
+        });
         scoreView = findViewById(R.id.chipForLevel);
 
         db.collection("users").get().addOnCompleteListener(task -> {
