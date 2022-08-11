@@ -20,6 +20,10 @@
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintVertical_bias="0.004" />
 
+  <com.yuyakaido.android.cardstackview.CardStackView>
+
+  </com.yuyakaido.android.cardstackview.CardStackView>
+
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/chapter_content_recycler_view"
       android:layout_width="0dp"
@@ -31,7 +35,7 @@
       app:layout_constraintTop_toBottomOf="@+id/CHAPTER_NAME"
       app:layout_constraintVertical_bias="1.0" />
 
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
+<com.google.android.material.floatingactionbutton.FloatingActionButton
       android:id="@+id/finishChapter"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
@@ -43,5 +47,4 @@
       app:layout_constraintTop_toTopOf="parent"
       app:layout_constraintVertical_bias="0.976"
       app:srcCompat="@drawable/fui_ic_check_circle_black_128dp" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
