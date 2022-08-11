@@ -9,11 +9,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     // the list of pairs
     private final ArrayList<String> lst;
 
@@ -22,9 +30,15 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
 
     String currentChapter;
 
-    public ChapterAdapter(ArrayList<String> lst, Context context) {
+    String userInfo;
+
+    String topicName;
+
+    public ChapterAdapter(ArrayList<String> lst, Context context, String userInfo, String topicName) {
         this.lst = lst;
         this.context = context;
+        this.userInfo = userInfo;
+        this.topicName = topicName;
     }
 
     @NonNull
@@ -36,11 +50,15 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull ChapterViewHolder holder, int position) {
         String currentChapter = lst.get(position);
-
         holder.cardRelativeLayout.setOnClickListener(v -> {
-            Toast.makeText(context.getApplicationContext(), "Opening" + holder.actualChapterName, Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(context.getApplicationContext(), "chapter belongs to: " + topicName, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context.getApplicationContext(), SpecificChapterActivity.class);
             intent.putExtra("chapter", holder.actualChapterName);
+            intent.putExtra("userName", userInfo);
+            intent.putExtra("topic", this.topicName);
+
+
             context.startActivity(intent);
         });
 

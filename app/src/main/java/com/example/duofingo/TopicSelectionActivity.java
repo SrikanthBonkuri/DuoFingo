@@ -1,25 +1,28 @@
 package com.example.duofingo;
 
+import android.os.Bundle;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Bundle;
 
 import java.util.ArrayList;
 
 public class TopicSelectionActivity extends AppCompatActivity {
 
     ArrayList<String> topics = new ArrayList<>();
-
-
     RecyclerView topicRecyclerView;
-
+    String userName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_topic_selection);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            userName = extras.getString("userName");
+        }
+        // Hardcoding the topics as they are fixed in the applications.
         topics.add("Budgeting");
         topics.add("Investing");
         topics.add("Taxes");
@@ -34,9 +37,7 @@ public class TopicSelectionActivity extends AppCompatActivity {
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(TopicSelectionActivity.this);
         topicRecyclerView.setLayoutManager(gridLayoutManager);
-        topicRecyclerView.setAdapter(new TopicAdapter(topics, TopicSelectionActivity.this));
-
-
+        topicRecyclerView.setAdapter(new TopicAdapter(topics, TopicSelectionActivity.this, userName));
 
     }
 }
