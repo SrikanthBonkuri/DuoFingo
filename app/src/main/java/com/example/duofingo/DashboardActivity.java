@@ -250,12 +250,14 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     public void openTopicSelectActivity() {
         Intent intent = new Intent(this, TopicSelectionActivity.class);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 
-    public void openChaptersSelectActivity(String topicName) {
+    public void openChaptersSelectActivity(String topicName, String userName) {
         Intent intent = new Intent(this, ChapterSelectionActivity.class);
         intent.putExtra("topic", topicName);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 
@@ -299,7 +301,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     @Override
     public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
-        this.openChaptersSelectActivity(continueReadingData.getTopicName());
+        this.openChaptersSelectActivity(continueReadingData.getTopicName(), continueReadingData.getUserName());
     }
 
     @Override
@@ -421,7 +423,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                                                 document.get("chapterID").toString(),
                                                 document.getString("topicName"),
                                                 document.get("chapterID").toString(),
-                                                document.get("total_chapters").toString()));
+                                                document.get("total_chapters").toString(),
+                                                document.get("userID").toString()));
 
 
                             }
@@ -436,6 +439,15 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     }
                 });
 
+
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        continueReadingDataSource.clear();
+        continueReadingRV.getAdapter().notifyDataSetChanged();
+        getContinueReadingData(userName);
 
     }
 }
