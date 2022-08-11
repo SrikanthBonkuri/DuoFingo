@@ -2,10 +2,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollViewDash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
-
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,6 +42,13 @@
             app:layout_constraintStart_toEndOf="@+id/chipForProfile"
             tools:ignore="MissingConstraints"
             tools:layout_editor_absoluteY="0dp" />
+
+        <ImageView
+            android:id="@+id/profileImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_launcher_background"
+            tools:ignore="MissingConstraints" />
 
         <TextView
             android:id="@+id/continueReadingHeading"
@@ -385,11 +392,11 @@
                 android:layout_height="wrap_content"
                 android:scrollbars="horizontal" />
 
-<!--            <ProgressBar-->
-<!--                android:id="@+id/rankingsProgressBar"-->
-<!--                style="?android:attr/progressBarStyle"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content" />-->
+            <!--            <ProgressBar-->
+            <!--                android:id="@+id/rankingsProgressBar"-->
+            <!--                style="?android:attr/progressBarStyle"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content" />-->
 
         </com.google.android.material.card.MaterialCardView>
 
