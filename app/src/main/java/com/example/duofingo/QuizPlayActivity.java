@@ -172,11 +172,19 @@ public class QuizPlayActivity extends AppCompatActivity {
         }
 
         // Load questions data from the DB
-        getQuestionsDataFromDB();
-        Log.i("Quiz", userQuestions.toString());
-        Log.i("Quiz", userAnswers.toString());
-        Log.i("Quiz", userOptions.toString());
+        //getQuestionsDataFromDB();
+        //Log.i("Quiz", userQuestions.toString());
+        //Log.i("Quiz", userAnswers.toString());
+        //Log.i("Quiz", userOptions.toString());
 
+        questions = (ArrayList<String>) getIntent().getSerializableExtra("quizQuestions");
+        answers = (ArrayList<String>) getIntent().getSerializableExtra("quizAnswers");
+        options = (ArrayList<String>) getIntent().getSerializableExtra("quizOptions");
+
+        radioButton1.setText(options.get(qIndex * 4)); // 2*4=8
+        radioButton2.setText(options.get(qIndex * 4 + 1)); // 2*4+1=9
+        radioButton3.setText(options.get(qIndex * 4 + 2)); // 2*4+2=10
+        radioButton4.setText(options.get(qIndex * 4 + 3));
         // check options selected or not
         // if selected then selected option correct or wrong
         nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
@@ -238,6 +246,11 @@ public class QuizPlayActivity extends AppCompatActivity {
             }
             if (qIndex <= questions.size() - 1) {
                 tv_question.setText(questions.get(qIndex));
+                System.out.println(questions.size());
+                System.out.println(qIndex);
+                System.out.println(options.size());
+                //System.out.println(quizQuestions.size());
+                //System.out.println(quizQuestions.size());
                 radioButton1.setText(options.get(qIndex * 4)); // 2*4=8
                 radioButton2.setText(options.get(qIndex * 4 + 1)); // 2*4+1=9
                 radioButton3.setText(options.get(qIndex * 4 + 2)); // 2*4+2=10
@@ -265,7 +278,13 @@ public class QuizPlayActivity extends AppCompatActivity {
             } else {
                 checkedRadioButton = findViewById(radiogrp.getCheckedRadioButtonId());
                 String checkedAnswer = checkedRadioButton.getText().toString();
-                if (checkedAnswer == answers.get(qIndex)) {
+                System.out.println(qIndex);
+                System.out.println(checkedAnswer);
+                System.out.println(answers.get(qIndex));
+                String ans = answers.get(qIndex);
+                System.out.println(checkedAnswer == ans);
+                if (checkedAnswer.equals(answers.get(qIndex))) {
+                    System.out.println("corr");
                     correct++;
                     txt_play_score.setText("Score : " + correct);
                     correctAlertDialog();
@@ -273,6 +292,7 @@ public class QuizPlayActivity extends AppCompatActivity {
                         cTimer.cancel();
                     }
                 } else {
+                    System.out.println("wrong");
                     wrong++;
                     wrongAlertDialog();
                     if(cTimer!=null) {
