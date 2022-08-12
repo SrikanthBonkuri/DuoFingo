@@ -143,7 +143,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 Intent intent = new Intent(DashboardActivity.this, DiscussionBoard.class);
                 intent.putExtra("username", userName);
                 startActivity(intent);
-                finish();
             }
         });
         scoreView = findViewById(R.id.chipForLevel);
