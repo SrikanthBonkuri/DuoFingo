@@ -60,7 +60,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         chapterName = findViewById(R.id.CHAPTER_NAME);
         nextChapter = findViewById(R.id.next_chapter);
         previousChapter = findViewById(R.id.previous_chapter);
-      
+
         floatingActionButton = findViewById(R.id.finishChapter);
         chapterName.setText(currentChapter);
         if(isLastChapter) nextChapter.setVisibility(View.GONE);
@@ -110,7 +110,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                     }
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
                                     chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
-                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this));
+                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs,SpecificChapterActivity.this, userName, currentTopic));
 
                                     //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
                                     //continueReadingRV.setHasFixedSize(true);
@@ -170,7 +170,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                     }
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
                                     chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
-                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this));
+                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this, userName, currentTopic));
 
                                     //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
                                     //continueReadingRV.setHasFixedSize(true);
@@ -200,35 +200,36 @@ public class SpecificChapterActivity extends AppCompatActivity {
 //                                System.out.println("if");
 //                                chapter_paragraphs.add(document.getString("heading"));
 
-                                List<String> data = (List<String>)document.get("body");
-                                boolean lFlag = (boolean)document.get("lastChapter");
+                                List<String> data = (List<String>) document.get("body");
+                                boolean lFlag = (boolean) document.get("lastChapter");
                                 index = (Long) document.get("index");
                                 topic = (String) document.get("topicName");
                                 System.out.println(topic);
                                 System.out.println(index);
 
                                 chapter_paragraphs.clear();
-                                for(String a : data) {
+                                for (String a : data) {
                                     chapter_paragraphs.add(a);
                                 }
 //                                chapter_paragraphs.add(document.get("body").);
                                 isLastChapter = lFlag;
-                                if(!isLastChapter) nextChapter.setVisibility(View.VISIBLE);
-                                if(index!=1) previousChapter.setVisibility(View.VISIBLE);
+                                if (!isLastChapter) nextChapter.setVisibility(View.VISIBLE);
+                                if (index != 1) previousChapter.setVisibility(View.VISIBLE);
 
+                            }
+                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
+                            chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
+                            chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this, userName, currentTopic));
+
+                            //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
+                            //continueReadingRV.setHasFixedSize(true);
+                            //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                            //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
+
+                        } else {
+                            System.out.println("else");
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
-                        chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
-                        chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this, userName, currentTopic));
-
-                        //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
-                        //continueReadingRV.setHasFixedSize(true);
-                        //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                        //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
-
-                    } else {
-                        System.out.println("else");
-                        Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
 
