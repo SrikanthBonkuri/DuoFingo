@@ -124,7 +124,6 @@ public class LoginSignUp extends AppCompatActivity {
     private void checkLoginCredentials(String email, String password,
                                        FirestoreCallback callback) {
 
-
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isComplete()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {

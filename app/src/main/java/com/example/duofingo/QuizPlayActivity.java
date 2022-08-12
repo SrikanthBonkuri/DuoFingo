@@ -171,35 +171,54 @@ public class QuizPlayActivity extends AppCompatActivity {
             quizType = QuestionType.CHAPTER;
         }
 
-        // Load questions data from the DB
-        getQuestionsDataFromDB();
-        Log.i("Quiz", userQuestions.toString());
-        Log.i("Quiz", userAnswers.toString());
-        Log.i("Quiz", userOptions.toString());
+        userQuestions = new ArrayList<>();
+        userAnswers = new ArrayList<>();
+        userOptions = new ArrayList<>();
 
-        // check options selected or not
-        // if selected then selected option correct or wrong
-        nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+        // Load questions data from the DB
+        getQuestionsDataFromDB(new FirestoreCallback() {
             @Override
-            public void onClick(View v) {
-                if(radiogrp.getCheckedRadioButtonId() == -1) {
-                    Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                } else {
-                    showNextQuestion();
-                }
+            public void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions, ArrayList<String> userAnswers) {
+                Log.i("Quiz", userQuestions.toString());
+                Log.i("Quiz", userAnswers.toString());
+                Log.i("Quiz", userOptions.toString());
+                questions = (ArrayList<String>) userQuestions.clone();
+                answers = (ArrayList<String>) userAnswers.clone();
+                options = (ArrayList<String>) userOptions.clone();
+
+                // if selected then selected option correct or wrong
+                nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(radiogrp.getCheckedRadioButtonId() == -1) {
+                            Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                        } else {
+                            showNextQuestion();
+                        }
+                    }
+                });
+
+                tv_noOfQues.setText(updateQueNo + "/10");
+                tv_question.setText(questions.get(qIndex));
+
+                timeLeftMilliSeconds = countDownInMilliSecond;
+                statCountDownTimer();
             }
         });
 
-        tv_noOfQues.setText(updateQueNo + "/10");
-        tv_question.setText(questions.get(qIndex));
 
-        timeLeftMilliSeconds = countDownInMilliSecond;
 
-        statCountDownTimer();
+        // check options selected or not
+
+    }
+
+    private interface FirestoreCallback {
+        void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions,
+                        ArrayList<String> userAnswers);
     }
 
     // This method gets questions, answers and the list of answers.
-    private void getQuestionsDataFromDB() {
+    private void getQuestionsDataFromDB(FirestoreCallback callback) {
 
         AdaptableQuizContent adaptableQuizContent = new AdaptableQuizContent(quizType, userName,
                 topicName);
@@ -214,16 +233,19 @@ public class QuizPlayActivity extends AppCompatActivity {
                         if (userSpecificQuestions.contains(
                                 documentSnapshot.getString("question"))) {
                             userQuestions.add(documentSnapshot.getString("question"));
-                            ArrayList<String> options = (ArrayList<String>) documentSnapshot.get("options");
-                            int answerIndex = (int) documentSnapshot.get("answer") - 1;
-                            userOptions.addAll(options);
-                            userAnswers.add(options.get(answerIndex));
-
+                            Log.i("Adaptable Question", documentSnapshot.toString());
+                            ArrayList<String> dbOptions = (ArrayList<String>) documentSnapshot.get("answers");
+                            int answerIndex = ((Long) documentSnapshot.get("correctAnswer")
+                            ).intValue() - 1;
+                            userOptions.addAll(dbOptions);
+                            userAnswers.add(dbOptions.get(answerIndex));
+                            callback.onCallBack(userQuestions, userOptions, userAnswers);
                         }
                     }
                 }
             }
         });
+
 
     }
 
