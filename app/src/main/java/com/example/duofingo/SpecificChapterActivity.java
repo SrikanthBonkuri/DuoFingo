@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -35,6 +36,14 @@ public class SpecificChapterActivity extends AppCompatActivity {
     FloatingActionButton floatingActionButton;
     RecyclerView chapterContentRecyclerView;
     TextView chapterName;
+    Button nextChapter;
+    Button previousChapter;
+
+    boolean isLastChapter = true;
+    boolean isFirstChapter = true;
+    Long index;
+    String topic;
+    String chapter;
 
 
     @Override
@@ -49,28 +58,163 @@ public class SpecificChapterActivity extends AppCompatActivity {
 
         chapterContentRecyclerView = findViewById(R.id.chapter_content_recycler_view);
         chapterName = findViewById(R.id.CHAPTER_NAME);
-
+        nextChapter = findViewById(R.id.next_chapter);
+        previousChapter = findViewById(R.id.previous_chapter);
+      
         floatingActionButton = findViewById(R.id.finishChapter);
         chapterName.setText(currentChapter);
+        if(isLastChapter) nextChapter.setVisibility(View.GONE);
+        if(isFirstChapter) previousChapter.setVisibility(View.GONE);
+
+        nextChapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db.collection("chapters").whereEqualTo("topicName", topic)
+                        .whereEqualTo("index", index+1).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                System.out.println("in");
+                                System.out.println(task.isSuccessful());
+                                if (task.isSuccessful()) {
+                                    for (DocumentSnapshot document : task.getResult()) {
+//                                System.out.println("if");
+//                                chapter_paragraphs.add(document.getString("heading"));
+
+                                        List<String> data = (List<String>)document.get("body");
+                                        boolean lFlag = (boolean)document.get("lastChapter");
+                                        index = (Long) document.get("index");
+                                        chapter = (String) document.get("heading");
+                                        System.out.println(chapter);
+                                        System.out.println(index);
+
+                                        chapter_paragraphs.clear();
+                                        for(String a : data) {
+                                            chapter_paragraphs.add(a);
+                                        }
+//                                chapter_paragraphs.add(document.get("body").);
+
+                                        chapterName.setText(chapter);
+                                        isLastChapter = lFlag;
+                                        if(isLastChapter) {
+                                            nextChapter.setVisibility(View.GONE);
+                                        } else {
+                                            nextChapter.setVisibility(View.VISIBLE);
+                                        }
+                                        if(index==1) {
+                                            previousChapter.setVisibility(View.GONE);
+                                        } else {
+                                            previousChapter.setVisibility(View.VISIBLE);
+                                        }
+
+                                    }
+                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
+                                    chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
+                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this));
+
+                                    //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
+                                    //continueReadingRV.setHasFixedSize(true);
+                                    //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                                    //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
+
+                                } else {
+                                    System.out.println("else");
+                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
+            }
+        });
+
+        previousChapter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                db.collection("chapters").whereEqualTo("topicName", topic)
+                        .whereEqualTo("index", index-1).get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                System.out.println("in");
+                                System.out.println(task.isSuccessful());
+                                if (task.isSuccessful()) {
+                                    for (DocumentSnapshot document : task.getResult()) {
+//                                System.out.println("if");
+//                                chapter_paragraphs.add(document.getString("heading"));
+
+                                        List<String> data = (List<String>)document.get("body");
+                                        boolean lFlag = (boolean)document.get("lastChapter");
+                                        index = (Long) document.get("index");
+                                        chapter = (String) document.get("heading");
+                                        System.out.println(chapter);
+                                        System.out.println(index);
+
+                                        chapter_paragraphs.clear();
+                                        for(String a : data) {
+                                            chapter_paragraphs.add(a);
+                                        }
+//                                chapter_paragraphs.add(document.get("body").);
+
+                                        chapterName.setText(chapter);
+                                        isLastChapter = lFlag;
+                                        if(isLastChapter) {
+                                            nextChapter.setVisibility(View.GONE);
+                                        } else {
+                                            nextChapter.setVisibility(View.VISIBLE);
+                                        }
+                                        if(index==1) {
+                                            previousChapter.setVisibility(View.GONE);
+                                        } else {
+                                            previousChapter.setVisibility(View.VISIBLE);
+                                        }
+
+                                    }
+                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
+                                    chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
+                                    chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this));
+
+                                    //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
+                                    //continueReadingRV.setHasFixedSize(true);
+                                    //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                                    //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
+
+                                } else {
+                                    System.out.println("else");
+                                    Log.d(TAG, "Error getting documents: ", task.getException());
+                                }
+                            }
+                        });
+            }
+        });
 
         //chapter_paragraphs.add("two");
         //chapter_paragraphs.add("My very efficient mother just served us nuts");
 
         db.collection("chapters").whereEqualTo("heading", currentChapter).get()
-                .addOnCompleteListener(task -> {
-                    System.out.println("in");
-                    System.out.println(task.isSuccessful());
-                    if (task.isSuccessful()) {
-                        for (DocumentSnapshot document : task.getResult()) {
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        System.out.println("in");
+                        System.out.println(task.isSuccessful());
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot document : task.getResult()) {
 //                                System.out.println("if");
 //                                chapter_paragraphs.add(document.getString("heading"));
 
-                            List<String> data = (List<String>)document.get("body");
+                                List<String> data = (List<String>)document.get("body");
+                                boolean lFlag = (boolean)document.get("lastChapter");
+                                index = (Long) document.get("index");
+                                topic = (String) document.get("topicName");
+                                System.out.println(topic);
+                                System.out.println(index);
 
-                            for(String a : data) {
-                                chapter_paragraphs.add(a);
-                            }
+                                chapter_paragraphs.clear();
+                                for(String a : data) {
+                                    chapter_paragraphs.add(a);
+                                }
 //                                chapter_paragraphs.add(document.get("body").);
+                                isLastChapter = lFlag;
+                                if(!isLastChapter) nextChapter.setVisibility(View.VISIBLE);
+                                if(index!=1) previousChapter.setVisibility(View.VISIBLE);
 
                         }
                         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
