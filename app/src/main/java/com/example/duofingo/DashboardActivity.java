@@ -189,6 +189,15 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         dashBoardRankingGlobalDataSource = new ArrayList<>();
         this.getGlobalRankingData(userName);
 
+        heyUsername.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentProfile = new Intent(DashboardActivity.this, profileViewDesign.class);
+                intentProfile.putExtra("username", userName);
+                startActivity(intentProfile);
+            }
+        });
+
 
 
         // Recycle View Data for Ranking
