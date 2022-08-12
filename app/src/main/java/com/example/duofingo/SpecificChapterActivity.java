@@ -77,6 +77,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                 System.out.println("in");
                                 System.out.println(task.isSuccessful());
                                 if (task.isSuccessful()) {
+                                    System.out.println(task.getResult());
                                     for (DocumentSnapshot document : task.getResult()) {
 //                                System.out.println("if");
 //                                chapter_paragraphs.add(document.getString("heading"));

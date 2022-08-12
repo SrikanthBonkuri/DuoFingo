@@ -48,12 +48,12 @@ public class AdaptableQuizContent {
 
 
         // Get user score
-        final int[] userScore = {-1};
+        final Long[] userScore = {-1L};
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                     if (Objects.equals(documentSnapshot.get("userName"), userName)) {
-                        userScore[0] = (int) documentSnapshot.get("userName");
+                        userScore[0] = (Long) documentSnapshot.get("userScore");
                     }
                 }
             }

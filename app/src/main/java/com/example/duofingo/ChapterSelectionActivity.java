@@ -3,8 +3,11 @@ package com.example.duofingo;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -32,13 +35,15 @@ public class ChapterSelectionActivity extends AppCompatActivity {
     ArrayList<String> chapters = new ArrayList<>();
 
     RecyclerView chapterRecyclerView;
+    Button takeQuiz;
     String userName;
+    String currentTopic;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chapter_selection);
-        String currentTopic = null;
-        String userName = null;
+        //String currentTopic = null;
+        //String userName = null;
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             currentTopic = extras.getString("topic");
@@ -90,6 +95,19 @@ public class ChapterSelectionActivity extends AppCompatActivity {
         chapters.addAll(Arrays.asList(chapterNames));
 
         chapterRecyclerView = findViewById(R.id.chapter_recycler_view);
+        takeQuiz = findViewById(R.id.take_quiz);
+
+        takeQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChapterSelectionActivity.this, QuizStartActivity.class);
+                intent.putExtra("userName", userName);
+                intent.putExtra("quizType", QuestionType.WEEKLY);
+                intent.putExtra("topicName", currentTopic);
+                startActivity(intent);
+            }
+        });
+
         //topicRecyclerView.setHasFixedSize(true);
         //GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 1);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChapterSelectionActivity.this);

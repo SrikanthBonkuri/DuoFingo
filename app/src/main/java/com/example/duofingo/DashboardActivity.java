@@ -117,11 +117,11 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DashboardActivity.this,
-                        QuizPlayActivity.class);
+                        QuizStartActivity.class);
                 intent.putExtra("userName", userName);
                 intent.putExtra("quizType", QuestionType.WEEKLY);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -129,11 +129,11 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DashboardActivity.this,
-                        QuizPlayActivity.class);
+                        QuizStartActivity.class);
                 intent.putExtra("userName", userName);
                 intent.putExtra("quizType", QuestionType.MONTHLY);
                 startActivity(intent);
-                finish();
+                //finish();
             }
         });
 
@@ -268,6 +268,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     public void openQuizPlayActivity(View view) {
         Intent intent = new Intent(this, QuizStartActivity.class);
         startActivity(intent);
+        System.out.println("HereQuiz");
     }
 
     private void getLocation() {
