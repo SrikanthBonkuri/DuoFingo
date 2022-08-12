@@ -87,6 +87,7 @@ public class LoginSignUp extends AppCompatActivity {
                     postToDB(userName.getText().toString(), email.getText().toString(),
                             password.getText().toString(), fullName.getText().toString());
                     openDashboardActivity();
+                    finish();
                 }
 
             } else {
@@ -98,6 +99,7 @@ public class LoginSignUp extends AppCompatActivity {
                         openDashboardActivity();
                         Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
                                 .show();
+                        finish();
                     }
                     else {
                         Toast.makeText(this, "Unable to login. Check credentials.",
