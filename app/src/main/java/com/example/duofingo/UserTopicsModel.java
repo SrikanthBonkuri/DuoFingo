@@ -1,28 +1,25 @@
 package com.example.duofingo;
 
 public class UserTopicsModel {
-    public String chapterID;
-    public String topicID;
-    public int numChapters;
-    public int userName;
+    public Integer chapterID;
+    public String topicName;
+    public Integer total_chapters;
+    public String userID;
 
-    public void setChapterID(String chapterID) {
+    public void setChapterID(Integer chapterID) {
         this.chapterID = chapterID;
     }
 
-    public void setTopicID(String topicID) {
-        this.topicID = topicID;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
-    public void setNumChapters(int numChapters) {
-        this.numChapters = numChapters;
+    public void setNumChapters(Integer numChapters) {
+        this.total_chapters = numChapters;
     }
 
-    public void setUserName(int userName) {
-        this.userName = userName;
+    public void setUserName(String userName) {
+        this.userID = userName;
     }
 
-    public UserTopicsModel() {
-
-    }
 }

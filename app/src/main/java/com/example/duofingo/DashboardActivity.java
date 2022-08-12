@@ -1,16 +1,8 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -24,17 +16,22 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.chip.Chip;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QuerySnapshot;
-
-import com.google.android.material.chip.Chip;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -71,6 +68,9 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
     Button chapterSelect;
     Button dashboardDesign;
     Button quizPlay;
+    Button viewDiscussions;
+    Button weeklyQuiz;
+    Button monthlyQuiz;
 
     TextView locationText;
     String currentEmail;
@@ -109,6 +109,44 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
         scoreView = findViewById(R.id.chipForLevel);
+        viewDiscussions = findViewById(R.id.view_discussions);
+        weeklyQuiz = findViewById(R.id.weeklyQuizButton);
+        monthlyQuiz = findViewById(R.id.monthlyQuizButton);
+
+        weeklyQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this,
+                        QuizPlayActivity.class);
+                intent.putExtra("userName", userName);
+                intent.putExtra("quizType", QuestionType.WEEKLY);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        monthlyQuiz.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this,
+                        QuizPlayActivity.class);
+                intent.putExtra("userName", userName);
+                intent.putExtra("quizType", QuestionType.MONTHLY);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        viewDiscussions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DashboardActivity.this, DiscussionBoard.class);
+                intent.putExtra("username", userName);
+                startActivity(intent);
+                finish();
+            }
+        });
+        scoreView = findViewById(R.id.chipForLevel);
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -136,7 +174,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
         dashBoardRankingGlobalDataSource = new ArrayList<>();
         this.getGlobalRankingData(userName);
-
 
 
         // Recycle View Data for Ranking
@@ -213,12 +250,14 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     public void openTopicSelectActivity() {
         Intent intent = new Intent(this, TopicSelectionActivity.class);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 
-    public void openChaptersSelectActivity(String topicName) {
+    public void openChaptersSelectActivity(String topicName, String userName) {
         Intent intent = new Intent(this, ChapterSelectionActivity.class);
         intent.putExtra("topic", topicName);
+        intent.putExtra("userName", userName);
         startActivity(intent);
     }
 
@@ -262,7 +301,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
     @Override
     public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
-        this.openChaptersSelectActivity(continueReadingData.getTopicName());
+        this.openChaptersSelectActivity(continueReadingData.getTopicName(), continueReadingData.getUserName());
     }
 
     @Override
@@ -384,7 +423,8 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                                                 document.get("chapterID").toString(),
                                                 document.getString("topicName"),
                                                 document.get("chapterID").toString(),
-                                                document.get("total_chapters").toString()));
+                                                document.get("total_chapters").toString(),
+                                                document.get("userID").toString()));
 
 
                             }
@@ -399,6 +439,15 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     }
                 });
 
+
+    }
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        continueReadingDataSource.clear();
+        continueReadingRV.getAdapter().notifyDataSetChanged();
+        getContinueReadingData(userName);
 
     }
 }
