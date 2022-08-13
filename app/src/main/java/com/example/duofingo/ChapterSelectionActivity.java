@@ -106,7 +106,7 @@ public class ChapterSelectionActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChapterSelectionActivity.this, QuizStartActivity.class);
                 intent.putExtra("userName", userName);
-                intent.putExtra("quizType", QuestionType.WEEKLY);
+                intent.putExtra("quizType", QuestionType.CHAPTER);
                 intent.putExtra("topicName", currentTopic);
                 startActivity(intent);
             }
