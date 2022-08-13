@@ -1,8 +1,5 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,24 +7,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.auth.User;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.Objects;
 
 public class LoginSignUp extends AppCompatActivity {
-
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DB";
@@ -42,13 +38,14 @@ public class LoginSignUp extends AppCompatActivity {
     EditText password;
     EditText email;
     TextView loginRegisterText;
+    TextView loginAdditionalInformation;
     Button loginRegisterButton;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_sign_up);
-
 
         isSignUp = false;
         loginSignUpSwitch = findViewById(R.id.login_signup_toggle);
@@ -56,10 +53,13 @@ public class LoginSignUp extends AppCompatActivity {
         fullName.setVisibility(View.INVISIBLE);
         userName = findViewById(R.id.signup_username);
         userName.setVisibility(View.INVISIBLE);
+        progressBar = findViewById(R.id.loginProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         password = findViewById(R.id.loginPassword);
         email = findViewById(R.id.loginEmail);
         loginRegisterText = findViewById(R.id.loginRegisterText);
+        loginAdditionalInformation = findViewById(R.id.loginAdditionalInformation);
         loginRegisterButton = findViewById(R.id.loginOrRegisterButton);
 
         loginSignUpSwitch.setOnClickListener(v -> {
@@ -69,12 +69,13 @@ public class LoginSignUp extends AppCompatActivity {
                 userName.setVisibility(View.VISIBLE);
                 loginRegisterText.setText("Register");
                 loginRegisterButton.setText("Register");
-            }
-            else {
+                loginAdditionalInformation.setText("Create an account!");
+            } else {
                 fullName.setVisibility(View.INVISIBLE);
                 userName.setVisibility(View.INVISIBLE);
                 loginRegisterText.setText("Login");
                 loginRegisterButton.setText("Login");
+                loginAdditionalInformation.setText("Please sign in to continue.");
             }
         });
 
@@ -87,56 +88,56 @@ public class LoginSignUp extends AppCompatActivity {
                     postToDB(userName.getText().toString(), email.getText().toString(),
                             password.getText().toString(), fullName.getText().toString());
                     openDashboardActivity();
+                    finish();
                 }
 
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-                    checkLoginCredentials(email.getText().toString(),
-                            password.getText().toString());
-                    if (password.getText().toString().equals(dbPassword)) {
-                        openDashboardActivity();
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                    else {
-                        Toast.makeText(this, "Unable to login. Check credentials.",
-                                        Toast.LENGTH_SHORT).show();
-                    }
+                    progressBar.setVisibility(View.VISIBLE);
+                    checkLoginCredentials(email.getText().toString(), password.getText().toString(),
+                            new FirestoreCallback() {
+                                @Override
+                                public void onCallBack(boolean isValidCredentials) {
+                                    if (isValidCredentials) {
+                                        Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
+                                                .show();
+                                        openDashboardActivity();
+                                    } else {
+                                        Toast.makeText(LoginSignUp.this,
+                                                "Unable to login. Check credentials.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 }
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
 
     }
 
-    private void checkLoginCredentials(String email, String password) {
-        db.collection("users").whereEqualTo("email", email).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot document1 = task.getResult();
-                            for (DocumentSnapshot document : task.getResult()) {
+    private void checkLoginCredentials(String email, String password,
+            FirestoreCallback callback) {
 
-                                dbPassword = document.getString("password");
-                                Log.i(TAG, "User Password from DB " + dbPassword);
-                                if (Objects.equals(dbPassword, password)) {
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isComplete()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), email)
+                            && Objects.equals(documentSnapshot.get("password"), password)) {
 
-                                    Log.i(TAG, "document " + document.getId());
-                                    Log.i(TAG, "Login successfully");
-                                    isLoginSuccessful = true;
-                                    userName.setText(document.getString("userName"));
-                                    fullName.setText(document.getString("fullName"));
-                                }
-                                else {
-                                    Log.e(TAG, "Credentials don't match");
-                                }
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
-                        }
+                        userName.setText(documentSnapshot.getString("userName"));
+                        fullName.setText(documentSnapshot.getString("fullName"));
+                        isLoginSuccessful = true;
+                        callback.onCallBack(true);
                     }
-                });
+                }
+            }
+        });
+    }
+
+    private interface FirestoreCallback {
+        void onCallBack(boolean isValidCredentials);
     }
 
     private void postToDB(String userName, String email, String password, String fullName) {
@@ -163,6 +164,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Validate the email address passed in by the user
+     * 
      * @return true if the user has a valid email, false otherwise
      */
     private boolean validateEmail() {
@@ -184,6 +186,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the username
+     * 
      * @return true if valid username
      */
     private boolean validateUsername() {
@@ -196,6 +199,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the fullName of the user signing up
+     * 
      * @return true if valid fullName,
      */
     private boolean validateFullName() {
@@ -210,6 +214,8 @@ public class LoginSignUp extends AppCompatActivity {
         if (password.getText().toString().equals("")) {
             password.setError("password cannot be empty");
             return false;
+        } else if (password.getText().toString().length() < 8) {
+            password.setError("password should be at least 8 characters long.");
         }
         return true;
     }

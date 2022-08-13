@@ -1,30 +1,43 @@
 package com.example.duofingo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Bundle;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
-
+import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-//import com.techpassmaster.quizappkotlin.databinding.ActivityPlayBinding;
-import java.util.*;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 public class QuizPlayActivity extends AppCompatActivity {
 
     //    timer
     CountDownTimer cTimer = null;
-    long countDownInMilliSecond = 15000;
+    long countDownInMilliSecond = 20000;
     long countDownInterval = 1000;
     long timeLeftMilliSeconds = 0;
+
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     ArrayList<String> ColorStateList = new ArrayList<>();
 
@@ -35,6 +48,8 @@ public class QuizPlayActivity extends AppCompatActivity {
     int skip = 0;
     int qIndex = 0;
     int updateQueNo = 1;
+
+    ArrayList<String> userQuestions, userOptions, userAnswers;
 
     ArrayList<String> questions = new ArrayList<>(Arrays.asList(
             "Q.1. If a computer has more than one processor then it is known as?",
@@ -116,12 +131,15 @@ public class QuizPlayActivity extends AppCompatActivity {
     RadioButton checkedRadioButton;
     TextView txt_play_score;
 
+    QuestionType quizType;
+
     Button timeOverOk;
     Button wrongOK;
     Button correctOK;
     TextView tvScore;
     TextView tvWrongDialogCorrectAns;
-
+    String userName;
+    String topicName = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,26 +155,98 @@ public class QuizPlayActivity extends AppCompatActivity {
         tv_noOfQues = findViewById(R.id.tv_noOfQues);
         quiz_timer = findViewById(R.id.quiz_timer);
 
-        // check options selected or not
-        // if selected then selected option correct or wrong
-        nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+        Bundle extras = getIntent().getExtras();
+        userName = extras.getString("userName");
+
+        if (QuestionType.WEEKLY == extras.get("quizType"))
+        {
+            quizType = QuestionType.WEEKLY;
+        }
+        else if (QuestionType.MONTHLY == extras.get("quizType"))
+        {
+            quizType = QuestionType.MONTHLY;
+        }
+        else {
+            topicName = extras.getString("topicName");
+            quizType = QuestionType.CHAPTER;
+        }
+
+        userQuestions = new ArrayList<>();
+        userAnswers = new ArrayList<>();
+        userOptions = new ArrayList<>();
+
+        // Load questions data from the DB
+        getQuestionsDataFromDB(new FirestoreCallback() {
             @Override
-            public void onClick(View v) {
-                if(radiogrp.getCheckedRadioButtonId() == -1) {
-                    Toast.makeText(QuizPlayActivity.this, "Please select an options", Toast.LENGTH_SHORT).show();
-                } else {
-                    showNextQuestion();
+            public void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions, ArrayList<String> userAnswers) {
+                Log.i("Quiz", userQuestions.toString());
+                Log.i("Quiz", userAnswers.toString());
+                Log.i("Quiz", userOptions.toString());
+                questions = (ArrayList<String>) userQuestions.clone();
+                answers = (ArrayList<String>) userAnswers.clone();
+                options = (ArrayList<String>) userOptions.clone();
+
+                // if selected then selected option correct or wrong
+                nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(radiogrp.getCheckedRadioButtonId() == -1) {
+                            Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                        } else {
+                            showNextQuestion();
+                        }
+                    }
+                });
+
+                tv_noOfQues.setText(updateQueNo + "/10");
+                tv_question.setText(questions.get(qIndex));
+
+                timeLeftMilliSeconds = countDownInMilliSecond;
+                statCountDownTimer();
+            }
+        });
+
+
+
+        // check options selected or not
+
+    }
+
+    private interface FirestoreCallback {
+        void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions,
+                        ArrayList<String> userAnswers);
+    }
+
+    // This method gets questions, answers and the list of answers.
+    private void getQuestionsDataFromDB(FirestoreCallback callback) {
+
+        AdaptableQuizContent adaptableQuizContent = new AdaptableQuizContent(quizType, userName,
+                topicName);
+        ArrayList<String> userSpecificQuestions = adaptableQuizContent.getUserAdaptableQuizzes();
+        Log.i("Quiz", userSpecificQuestions.toString());
+
+        db.collection("questions").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (userSpecificQuestions.contains(
+                                documentSnapshot.getString("question"))) {
+                            userQuestions.add(documentSnapshot.getString("question"));
+                            Log.i("Adaptable Question", documentSnapshot.toString());
+                            ArrayList<String> dbOptions = (ArrayList<String>) documentSnapshot.get("answers");
+                            int answerIndex = ((Long) documentSnapshot.get("correctAnswer")
+                            ).intValue() - 1;
+                            userOptions.addAll(dbOptions);
+                            userAnswers.add(dbOptions.get(answerIndex));
+                            callback.onCallBack(userQuestions, userOptions, userAnswers);
+                        }
+                    }
                 }
             }
         });
 
-        tv_noOfQues.setText(updateQueNo + "/10");
-        tv_question.setText(questions.get(qIndex));
 
-
-        timeLeftMilliSeconds = countDownInMilliSecond;
-
-        statCountDownTimer();
     }
 
     @SuppressLint("SetTextI18n")
@@ -170,6 +260,11 @@ public class QuizPlayActivity extends AppCompatActivity {
             }
             if (qIndex <= questions.size() - 1) {
                 tv_question.setText(questions.get(qIndex));
+                System.out.println(questions.size());
+                System.out.println(qIndex);
+                System.out.println(options.size());
+                //System.out.println(quizQuestions.size());
+                //System.out.println(quizQuestions.size());
                 radioButton1.setText(options.get(qIndex * 4)); // 2*4=8
                 radioButton2.setText(options.get(qIndex * 4 + 1)); // 2*4+1=9
                 radioButton3.setText(options.get(qIndex * 4 + 2)); // 2*4+2=10
@@ -197,7 +292,13 @@ public class QuizPlayActivity extends AppCompatActivity {
             } else {
                 checkedRadioButton = findViewById(radiogrp.getCheckedRadioButtonId());
                 String checkedAnswer = checkedRadioButton.getText().toString();
-                if (checkedAnswer == answers.get(qIndex)) {
+                System.out.println(qIndex);
+                System.out.println(checkedAnswer);
+                System.out.println(answers.get(qIndex));
+                String ans = answers.get(qIndex);
+                System.out.println(checkedAnswer == ans);
+                if (checkedAnswer.equals(answers.get(qIndex))) {
+                    System.out.println("corr");
                     correct++;
                     txt_play_score.setText("Score : " + correct);
                     correctAlertDialog();
@@ -205,6 +306,7 @@ public class QuizPlayActivity extends AppCompatActivity {
                         cTimer.cancel();
                     }
                 } else {
+                    System.out.println("wrong");
                     wrong++;
                     wrongAlertDialog();
                     if(cTimer!=null) {

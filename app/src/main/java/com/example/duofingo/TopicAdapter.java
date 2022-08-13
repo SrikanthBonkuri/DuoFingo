@@ -22,13 +22,14 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicViewHolder>{
     private final Context context;
 
     String currentTopic;
-
+    String userName;
     private final TopicToIdMap topicToIdMap = new TopicToIdMap();
     Map<String, Integer> map = topicToIdMap.map;
 
-    public TopicAdapter(ArrayList<String> lst, Context context) {
+    public TopicAdapter(ArrayList<String> lst, Context context, String userName) {
         this.lst = lst;
         this.context = context;
+        this.userName = userName;
     }
 
     @NonNull
@@ -42,10 +43,9 @@ public class TopicAdapter extends RecyclerView.Adapter<TopicViewHolder>{
         currentTopic = lst.get(position);
 
         holder.cardRelativeLayout.setOnClickListener(v -> {
-            Toast.makeText(context.getApplicationContext(), "Opening " +
-                    holder.actualTopicName + " topic", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(context.getApplicationContext(), ChapterSelectionActivity.class);
             intent.putExtra("topic", holder.actualTopicName);
+            intent.putExtra("userName", userName);
             context.startActivity(intent);
         });
 

@@ -19,10 +19,10 @@
 
     <EditText
         android:id="@+id/loginEmail"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="275dp"
+        android:layout_height="42dp"
         android:ems="10"
-        android:hint="email"
+        android:hint="EMAIL"
         android:inputType="textEmailAddress"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,10 +33,10 @@
 
     <EditText
         android:id="@+id/loginPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="275dp"
+        android:layout_height="42dp"
         android:ems="10"
-        android:hint="password"
+        android:hint="PASSWORD"
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -51,19 +51,36 @@
         android:layout_height="wrap_content"
         android:text="Login"
         android:textSize="24sp"
+        android:textStyle="bold|italic"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.192"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.204" />
+        app:layout_constraintVertical_bias="0.164" />
+
+    <TextView
+        android:id="@+id/loginAdditionalInformation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Please sign in to continue."
+        android:textColor="#989898"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.279"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.206" />
 
     <EditText
         android:id="@+id/signup_username"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="275dp"
+        android:layout_height="42dp"
         android:ems="10"
+        android:hint="USERNAME"
         android:inputType="textPersonName"
-        android:hint="username"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,11 +89,11 @@
 
     <EditText
         android:id="@+id/signup_full_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="275dp"
+        android:layout_height="42dp"
         android:ems="10"
+        android:hint="FULL NAME"
         android:inputType="textPersonName"
-        android:hint="Full Name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -90,9 +107,21 @@
         android:text="Login"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.789"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.651" />
+        app:layout_constraintVertical_bias="0.636" />
+
+    <ProgressBar
+        android:id="@+id/loginProgressBar"
+        style="@android:style/Widget.DeviceDefault.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintBottom_toTopOf="@+id/login_signup_toggle"
+        app:layout_constraintEnd_toStartOf="@+id/loginOrRegisterButton"
+        app:layout_constraintHorizontal_bias="0.71"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/signup_full_name" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
