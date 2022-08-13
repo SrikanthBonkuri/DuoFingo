@@ -1,6 +1,7 @@
 package com.example.duofingo;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -170,8 +171,20 @@ public class QuizPlayActivity extends AppCompatActivity {
             topicName = extras.getString("topicName");
             quizType = QuestionType.CHAPTER;
         }
+        questions = (ArrayList<String>) getIntent().getSerializableExtra("quizQuestions");
+        answers = (ArrayList<String>) getIntent().getSerializableExtra("quizAnswers");
+        options = (ArrayList<String>) getIntent().getSerializableExtra("quizOptions");
 
-        userQuestions = new ArrayList<>();
+        Log.i("QuizPlay Questions", questions.toString());
+        Log.i("QuizPlay Answers", answers.toString());
+        Log.i("QuizPlay Option", options.toString());
+
+        radioButton1.setText(options.get(qIndex * 4)); // 2*4=8
+        radioButton2.setText(options.get(qIndex * 4 + 1)); // 2*4+1=9
+        radioButton3.setText(options.get(qIndex * 4 + 2)); // 2*4+2=10
+        radioButton4.setText(options.get(qIndex * 4 + 3));
+
+        /*userQuestions = new ArrayList<>();
         userAnswers = new ArrayList<>();
         userOptions = new ArrayList<>();
 
@@ -186,29 +199,29 @@ public class QuizPlayActivity extends AppCompatActivity {
                 answers = (ArrayList<String>) userAnswers.clone();
                 options = (ArrayList<String>) userOptions.clone();
 
-                // if selected then selected option correct or wrong
-                nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(radiogrp.getCheckedRadioButtonId() == -1) {
-                            Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                        } else {
-                            showNextQuestion();
-                        }
-                    }
-                });
-
-                tv_noOfQues.setText(updateQueNo + "/10");
-                tv_question.setText(questions.get(qIndex));
-
-                timeLeftMilliSeconds = countDownInMilliSecond;
-                statCountDownTimer();
             }
-        });
+        });*/
 
 
 
         // check options selected or not
+        // if selected then selected option correct or wrong
+        nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(radiogrp.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                } else {
+                    showNextQuestion();
+                }
+            }
+        });
+
+        tv_noOfQues.setText(updateQueNo + "/10");
+        tv_question.setText(questions.get(qIndex));
+
+        timeLeftMilliSeconds = countDownInMilliSecond;
+        statCountDownTimer();
 
     }
 
@@ -414,9 +427,33 @@ public class QuizPlayActivity extends AppCompatActivity {
 
             public void onFinish() {
                 //mTextField.setText("done!");
-                showNextQuestion();
+                //showNextQuestion();
+                if(cTimer!=null) {
+                    //cTimer.cancel();
+                    showNextQuestion();
+                }
             }
         }.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+            new AlertDialog.Builder(this).setTitle("Confirm QUIT!").setMessage("This will lose the current progress. Are you sure you want to quit?")
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(cTimer!=null) {
+                                cTimer.cancel();
+                            }
+                            finish();
+                            //super.onBackPressed();
+                        }
+                    }).show();
     }
 
 }
