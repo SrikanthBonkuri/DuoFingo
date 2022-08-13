@@ -35,16 +35,23 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.chip.Chip;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -105,11 +112,15 @@ public class DashboardActivity extends AppCompatActivity
     int myScore = 0;
 
     ImageView profileImage;
+    ImageView profileImageBig;
 
     public static final int PICK_IMAGE_REQUEST = 1;
 
     private FirebaseStorage storage;
     private StorageReference storageReference;
+
+    String userKey;
+    String profilePicKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,8 +133,19 @@ public class DashboardActivity extends AppCompatActivity
             userName = extras.getString("userName");
             userEmail = extras.getString("userEmail");
             fullName = extras.getString("fullName");
+            userKey = extras.getString("userKey");
+
+            if(extras.getString("profileKey") != null || extras.getString("profileKey") != "" ) {
+                profilePicKey = extras.getString("profileKey");
+            }
+            else{
+                profilePicKey = "";
+            }
+
 
         }
+
+//        db.collection("users").document(userKey).get()
         currentEmail = extras.getString("userEmail");
         currentPassword = extras.getString("password");
         progressBar = findViewById(R.id.rankingsProgressBar);
@@ -169,9 +191,56 @@ public class DashboardActivity extends AppCompatActivity
         scoreView = findViewById(R.id.chipForLevel);
 
         profileImage = findViewById(R.id.profileImage);
+        profileImageBig = findViewById(R.id.ProfileImageBig);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
+
+        if(profilePicKey != null && !profilePicKey.equals("")) {
+            profilePicKey = extras.getString("profileKey");
+
+            StorageReference childRefNew = storageReference.child(profilePicKey);
+
+            try {
+                File localfile = File.createTempFile("tempfile", ".jpg");
+                childRefNew.getFile(localfile)
+                        .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+                                profileImage.setImageBitmap(bitmap);
+                                profileImageBig.setImageBitmap(bitmap);
+                            }
+                        });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+//
+//        // we will get a DatabaseReference for the database root node
+//        DatabaseReference databaseReference = firebaseDatabase.getReference();
+//
+//
+//        DatabaseReference getImage = databaseReference.child(userKey);
+//
+//        getImage.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                // getting a DataSnapshot for the location at the specified
+//                // relative path and getting in the link variable
+//                String link = dataSnapshot.getValue(String.class);
+//                Log.d(TAG,"YERHJE"+link);
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(DashboardActivity.this, "Error Loading Image", Toast.LENGTH_SHORT).show();
+//            }
+//
+//        });
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,6 +297,8 @@ public class DashboardActivity extends AppCompatActivity
             public void onClick(View v) {
                 Intent intentProfile = new Intent(DashboardActivity.this, profileViewDesign.class);
                 intentProfile.putExtra("username", userName);
+                intentProfile.putExtra("userKey", userKey);
+
                 startActivity(intentProfile);
             }
         });
@@ -267,6 +338,18 @@ public class DashboardActivity extends AppCompatActivity
 
     }
 
+
+    /**
+     * To recall functionality whenever user returns to the page.
+     * Main usage is to sync with the data when update is made in any other pages.
+     */
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+
+    }
     private void pickImage(View view) {
 
         Intent intent = new Intent();

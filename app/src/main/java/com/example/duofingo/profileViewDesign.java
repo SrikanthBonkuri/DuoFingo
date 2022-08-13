@@ -42,6 +42,7 @@ public class profileViewDesign extends AppCompatActivity {
 
     String userName;
     String pictureId;
+    String userKey;
 
     public static final int PICK_IMAGE_REQUEST = 1;
 
@@ -56,6 +57,7 @@ public class profileViewDesign extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             userName = extras.getString("userName");
+            userKey = extras.getString("userKey");
 
         }
 
@@ -119,7 +121,7 @@ public class profileViewDesign extends AppCompatActivity {
 
                 this.pictureId = UUID.randomUUID().toString();
 
-                StorageReference childRef = storageReference.child(UUID.randomUUID().toString());
+                StorageReference childRef = storageReference.child(this.pictureId);
 
                 //uploading the image
                 UploadTask uploadTask = childRef.putFile(imageUri);
@@ -131,8 +133,9 @@ public class profileViewDesign extends AppCompatActivity {
                         Toast.makeText(profileViewDesign.this, "Upload successful", Toast.LENGTH_SHORT).show();
 
                         db.collection("users")
-                                .document("eg2GvG7jpGDWTV5GmAmx")
+                                .document(userKey)
                                 .update("profilePictureID",profileViewDesign.this.pictureId);
+
 
 
                     }

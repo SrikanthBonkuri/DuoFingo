@@ -32,6 +32,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     // Unique key store for the user
     private String userKey;
+    private String profileKey = "";
 
     boolean isSignUp;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
@@ -134,6 +135,7 @@ public class LoginSignUp extends AppCompatActivity {
                         fullName.setText(documentSnapshot.getString("fullName"));
                         // Set the user key
                         userKey = documentSnapshot.getId();
+                        profileKey = documentSnapshot.getString("profilePictureID");
                         isLoginSuccessful = true;
                         callback.onCallBack(true);
                     }
@@ -234,6 +236,7 @@ public class LoginSignUp extends AppCompatActivity {
         intent.putExtra("userName", userName.getText().toString());
         intent.putExtra("fullName", fullName.getText().toString());
         intent.putExtra("userKey", userKey);
+        intent.putExtra("profileKey", profileKey);
 
         startActivity(intent);
     }
