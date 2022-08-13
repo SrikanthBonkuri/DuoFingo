@@ -1,6 +1,7 @@
 package com.example.duofingo;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -186,29 +187,29 @@ public class QuizPlayActivity extends AppCompatActivity {
                 answers = (ArrayList<String>) userAnswers.clone();
                 options = (ArrayList<String>) userOptions.clone();
 
-                // if selected then selected option correct or wrong
-                nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if(radiogrp.getCheckedRadioButtonId() == -1) {
-                            Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
-                        } else {
-                            showNextQuestion();
-                        }
-                    }
-                });
-
-                tv_noOfQues.setText(updateQueNo + "/10");
-                tv_question.setText(questions.get(qIndex));
-
-                timeLeftMilliSeconds = countDownInMilliSecond;
-                statCountDownTimer();
             }
         });
 
 
 
         // check options selected or not
+        // if selected then selected option correct or wrong
+        nextQuestionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(radiogrp.getCheckedRadioButtonId() == -1) {
+                    Toast.makeText(QuizPlayActivity.this, "Please select an option", Toast.LENGTH_SHORT).show();
+                } else {
+                    showNextQuestion();
+                }
+            }
+        });
+
+        tv_noOfQues.setText(updateQueNo + "/10");
+        tv_question.setText(questions.get(qIndex));
+
+        timeLeftMilliSeconds = countDownInMilliSecond;
+        statCountDownTimer();
 
     }
 
@@ -414,9 +415,33 @@ public class QuizPlayActivity extends AppCompatActivity {
 
             public void onFinish() {
                 //mTextField.setText("done!");
-                showNextQuestion();
+                //showNextQuestion();
+                if(cTimer!=null) {
+                    //cTimer.cancel();
+                    showNextQuestion();
+                }
             }
         }.start();
+    }
+
+    @Override
+    public void onBackPressed() {
+            new AlertDialog.Builder(this).setTitle("Confirm QUIT!").setMessage("This will lose the current progress. Are you sure you want to quit?")
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    }).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if(cTimer!=null) {
+                                cTimer.cancel();
+                            }
+                            finish();
+                            //super.onBackPressed();
+                        }
+                    }).show();
     }
 
 }
