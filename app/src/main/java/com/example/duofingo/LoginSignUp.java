@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,8 @@ public class LoginSignUp extends AppCompatActivity {
     TextView loginRegisterText;
     TextView loginAdditionalInformation;
     Button loginRegisterButton;
+    ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +56,8 @@ public class LoginSignUp extends AppCompatActivity {
         fullName.setVisibility(View.INVISIBLE);
         userName = findViewById(R.id.signup_username);
         userName.setVisibility(View.INVISIBLE);
+        progressBar = findViewById(R.id.loginProgressBar);
+        progressBar.setVisibility(View.INVISIBLE);
 
         password = findViewById(R.id.loginPassword);
         email = findViewById(R.id.loginEmail);
@@ -93,44 +98,51 @@ public class LoginSignUp extends AppCompatActivity {
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-
-                    if (checkLoginCredentials(email.getText().toString(),
-                            password.getText().toString())) {
-                        openDashboardActivity();
-                        Toast.makeText(this, "Login Successful", Toast.LENGTH_SHORT)
-                                .show();
-                        finish();
-                    }
-                    else {
-                        Toast.makeText(this, "Unable to login. Check credentials.",
-                                        Toast.LENGTH_SHORT).show();
-                        //isLoginSuccessful = false;
-                    }
+                    progressBar.setVisibility(View.VISIBLE);
+                    checkLoginCredentials(email.getText().toString(), password.getText().toString(),
+                            new FirestoreCallback() {
+                                @Override
+                                public void onCallBack(boolean isValidCredentials) {
+                                    if (isValidCredentials) {
+                                        Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
+                                                .show();
+                                        openDashboardActivity();
+                                    }
+                                    else {
+                                        Toast.makeText(LoginSignUp.this,
+                                                "Unable to login. Check credentials.",
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                 }
+                progressBar.setVisibility(View.INVISIBLE);
             }
         });
 
     }
 
-    private boolean checkLoginCredentials(String email, String password) {
-
+    private void checkLoginCredentials(String email, String password,
+                                       FirestoreCallback callback) {
 
         db.collection("users").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
+            if (task.isComplete()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                     if (Objects.equals(documentSnapshot.get("email"), email)
                             && Objects.equals(documentSnapshot.get("password"), password)) {
 
-                        isLoginSuccessful = true;
                         userName.setText(documentSnapshot.getString("userName"));
                         fullName.setText(documentSnapshot.getString("fullName"));
-
+                        isLoginSuccessful = true;
+                        callback.onCallBack(true);
                     }
                 }
             }
         });
+    }
 
-        return isLoginSuccessful;
+    private interface FirestoreCallback {
+        void onCallBack(boolean isValidCredentials);
     }
 
     private void postToDB(String userName, String email, String password, String fullName) {
