@@ -16,21 +16,32 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.UUID;
 
 public class profileViewDesign extends AppCompatActivity {
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private static final String TAG = "PROFILE";
 
     ImageView profileImageBig;
     ImageView profileImageSmall;
+
+    String userName;
+    String pictureId;
 
     public static final int PICK_IMAGE_REQUEST = 1;
 
@@ -41,6 +52,12 @@ public class profileViewDesign extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_view_design);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            userName = extras.getString("userName");
+
+        }
 
         profileImageBig = findViewById(R.id.ProfileImageBig);
 
@@ -100,6 +117,8 @@ public class profileViewDesign extends AppCompatActivity {
                 final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
                 profileImageBig.setImageBitmap(selectedImage);
 
+                this.pictureId = UUID.randomUUID().toString();
+
                 StorageReference childRef = storageReference.child(UUID.randomUUID().toString());
 
                 //uploading the image
@@ -110,6 +129,12 @@ public class profileViewDesign extends AppCompatActivity {
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
                         Toast.makeText(profileViewDesign.this, "Upload successful", Toast.LENGTH_SHORT).show();
+
+                        db.collection("users")
+                                .document("eg2GvG7jpGDWTV5GmAmx")
+                                .update("profilePictureID",profileViewDesign.this.pictureId);
+
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

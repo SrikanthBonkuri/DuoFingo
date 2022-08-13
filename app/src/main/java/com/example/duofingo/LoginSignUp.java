@@ -117,9 +117,12 @@ public class LoginSignUp extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             QuerySnapshot document1 = task.getResult();
                             for (DocumentSnapshot document : task.getResult()) {
+
                                 dbPassword = document.getString("password");
                                 Log.i(TAG, "User Password from DB " + dbPassword);
                                 if (Objects.equals(dbPassword, password)) {
+
+                                    Log.i(TAG, "document " + document.getId());
                                     Log.i(TAG, "Login successfully");
                                     isLoginSuccessful = true;
                                     userName.setText(document.getString("userName"));
