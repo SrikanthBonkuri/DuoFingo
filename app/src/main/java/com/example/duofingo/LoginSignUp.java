@@ -92,7 +92,7 @@ public class LoginSignUp extends AppCompatActivity {
                     // post to the database
                     postToDB(userName.getText().toString(), email.getText().toString(),
                             password.getText().toString(), fullName.getText().toString());
-                    openDashboardActivity();
+                    openDashboardActivity(0);
                     finish();
                 }
 
@@ -107,7 +107,7 @@ public class LoginSignUp extends AppCompatActivity {
                                     if (isValidCredentials) {
                                         Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
                                                 .show();
-                                        openDashboardActivity();
+                                        openDashboardActivity(1);
                                     } else {
                                         Toast.makeText(LoginSignUp.this,
                                                 "Unable to login. Check credentials.",
@@ -229,7 +229,7 @@ public class LoginSignUp extends AppCompatActivity {
         return true;
     }
 
-    private void openDashboardActivity() {
+    private void openDashboardActivity(int page) {
         Intent intent = new Intent(this, DashboardActivity.class);
         intent.putExtra("userEmail", email.getText().toString());
         intent.putExtra("password", password.getText().toString());
@@ -237,7 +237,14 @@ public class LoginSignUp extends AppCompatActivity {
         intent.putExtra("fullName", fullName.getText().toString());
         intent.putExtra("userKey", userKey);
         intent.putExtra("profileKey", profileKey);
+        intent.putExtra("pageFrom", page);
 
+        startActivity(intent);
+    }
+
+    public void openTopicSelectActivity() {
+        Intent intent = new Intent(this, TopicSelectionActivity.class);
+        intent.putExtra("userName", userName.getText().toString());
         startActivity(intent);
     }
 

@@ -73,6 +73,7 @@ public class DashboardActivity extends AppCompatActivity
     String userName;
     String userEmail;
     String fullName;
+    int pageFrom;
 
     Handler textHandler = new Handler();
     Button topicSelect;
@@ -138,6 +139,10 @@ public class DashboardActivity extends AppCompatActivity
             userEmail = extras.getString("userEmail");
             fullName = extras.getString("fullName");
             userKey = extras.getString("userKey");
+            pageFrom = extras.getInt("pageFrom");
+
+            if(pageFrom == 0)
+                this.openTopicSelectActivity();
 
             if(extras.getString("profileKey") != null || extras.getString("profileKey") != "" ) {
                 profilePicKey = extras.getString("profileKey");
@@ -309,7 +314,6 @@ public class DashboardActivity extends AppCompatActivity
                 intentProfile.putExtra("userKey", userKey);
                 intentProfile.putExtra("profilePicKey", profilePicKey);
 
-
                 startActivity(intentProfile);
             }
         });
@@ -350,17 +354,6 @@ public class DashboardActivity extends AppCompatActivity
     }
 
 
-    /**
-     * To recall functionality whenever user returns to the page.
-     * Main usage is to sync with the data when update is made in any other pages.
-     */
-    @Override
-    protected void onResume() {
-
-        super.onResume();
-
-
-    }
     private void pickImage(View view) {
 
         Intent intent = new Intent();
