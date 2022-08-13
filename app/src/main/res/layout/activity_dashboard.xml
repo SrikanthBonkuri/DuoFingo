@@ -43,12 +43,12 @@
             tools:ignore="MissingConstraints"
             tools:layout_editor_absoluteY="0dp" />
 
-        <ImageView
-            android:id="@+id/profileImage"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_launcher_background"
-            tools:ignore="MissingConstraints" />
+<!--        <ImageView-->
+<!--            android:id="@+id/profileImage"-->
+<!--            android:layout_width="50dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            android:src="@drawable/ic_launcher_background"-->
+<!--            tools:ignore="MissingConstraints" />-->
 
         <TextView
             android:id="@+id/continueReadingHeading"

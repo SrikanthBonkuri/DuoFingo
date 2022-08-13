@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,11 +25,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,6 +48,7 @@ public class profileViewDesign extends AppCompatActivity {
     String userName;
     String pictureId;
     String userKey;
+    String profilePicKey;
 
     public static final int PICK_IMAGE_REQUEST = 1;
 
@@ -58,6 +64,7 @@ public class profileViewDesign extends AppCompatActivity {
         if (extras != null) {
             userName = extras.getString("userName");
             userKey = extras.getString("userKey");
+            profilePicKey = extras.getString("profilePicKey");
 
         }
 
@@ -93,6 +100,26 @@ public class profileViewDesign extends AppCompatActivity {
             }
         });
 
+
+        if(profilePicKey != null && !profilePicKey.equals("")) {
+
+            StorageReference childRefNew = storageReference.child(profilePicKey);
+
+            try {
+                File localfile = File.createTempFile("tempfile", ".jpg");
+                childRefNew.getFile(localfile)
+                        .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+//
+                                profileImageBig.setImageBitmap(bitmap);
+                            }
+                        });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 

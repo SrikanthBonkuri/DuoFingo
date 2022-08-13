@@ -6,6 +6,8 @@ import android.content.pm.PackageManager;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -190,8 +192,8 @@ public class DashboardActivity extends AppCompatActivity
         });
         scoreView = findViewById(R.id.chipForLevel);
 
-        profileImage = findViewById(R.id.profileImage);
-        profileImageBig = findViewById(R.id.ProfileImageBig);
+//        profileImage = findViewById(R.id.profileImage);
+//        profileImageBig = findViewById(R.id.ProfileImageBig);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
@@ -208,8 +210,11 @@ public class DashboardActivity extends AppCompatActivity
                             @Override
                             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                                 Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
-                                profileImage.setImageBitmap(bitmap);
-                                profileImageBig.setImageBitmap(bitmap);
+//                                profileImage.setImageBitmap(bitmap);
+                                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                                heyUsername.setChipIcon(d);
+
+//                                profileImageBig.setImageBitmap(bitmap);
                             }
                         });
             } catch (IOException e) {
@@ -241,30 +246,30 @@ public class DashboardActivity extends AppCompatActivity
 //            }
 //
 //        });
-
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                boolean pick = true;
-
-                if (pick == true) {
-
-                    if (!checkCameraPermission()) {
-                        requestCameraPermission();
-                    } else {
-                        pickImage(v);
-                    }
-
-                } else {
-                    if (!checkStoragePermission()) {
-                        requestStoragePermission();
-                    } else {
-                        pickImage(v);
-                    }
-                }
-            }
-        });
+//
+//        profileImage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                boolean pick = true;
+//
+//                if (pick == true) {
+//
+//                    if (!checkCameraPermission()) {
+//                        requestCameraPermission();
+//                    } else {
+//                        pickImage(v);
+//                    }
+//
+//                } else {
+//                    if (!checkStoragePermission()) {
+//                        requestStoragePermission();
+//                    } else {
+//                        pickImage(v);
+//                    }
+//                }
+//            }
+//        });
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -298,6 +303,8 @@ public class DashboardActivity extends AppCompatActivity
                 Intent intentProfile = new Intent(DashboardActivity.this, profileViewDesign.class);
                 intentProfile.putExtra("username", userName);
                 intentProfile.putExtra("userKey", userKey);
+                intentProfile.putExtra("profilePicKey", profilePicKey);
+
 
                 startActivity(intentProfile);
             }
