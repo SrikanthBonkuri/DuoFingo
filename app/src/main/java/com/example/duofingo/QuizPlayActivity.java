@@ -171,8 +171,20 @@ public class QuizPlayActivity extends AppCompatActivity {
             topicName = extras.getString("topicName");
             quizType = QuestionType.CHAPTER;
         }
+        questions = (ArrayList<String>) getIntent().getSerializableExtra("quizQuestions");
+        answers = (ArrayList<String>) getIntent().getSerializableExtra("quizAnswers");
+        options = (ArrayList<String>) getIntent().getSerializableExtra("quizOptions");
 
-        userQuestions = new ArrayList<>();
+        Log.i("QuizPlay Questions", questions.toString());
+        Log.i("QuizPlay Answers", answers.toString());
+        Log.i("QuizPlay Option", options.toString());
+
+        radioButton1.setText(options.get(qIndex * 4)); // 2*4=8
+        radioButton2.setText(options.get(qIndex * 4 + 1)); // 2*4+1=9
+        radioButton3.setText(options.get(qIndex * 4 + 2)); // 2*4+2=10
+        radioButton4.setText(options.get(qIndex * 4 + 3));
+
+        /*userQuestions = new ArrayList<>();
         userAnswers = new ArrayList<>();
         userOptions = new ArrayList<>();
 
@@ -188,7 +200,7 @@ public class QuizPlayActivity extends AppCompatActivity {
                 options = (ArrayList<String>) userOptions.clone();
 
             }
-        });
+        });*/
 
 
 
