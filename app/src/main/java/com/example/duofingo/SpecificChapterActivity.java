@@ -62,6 +62,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         previousChapter = findViewById(R.id.previous_chapter);
 
         floatingActionButton = findViewById(R.id.finishChapter);
+        floatingActionButton.setVisibility(View.INVISIBLE);
         chapterName.setText(currentChapter);
         if(isLastChapter) nextChapter.setVisibility(View.GONE);
         if(isFirstChapter) previousChapter.setVisibility(View.GONE);
@@ -69,6 +70,36 @@ public class SpecificChapterActivity extends AppCompatActivity {
         nextChapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                String[] Id = new String[1];
+                db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Integer currentCount = null;
+                        Integer totalChapterCount = null;
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                if (Objects.equals(documentSnapshot.get("userID"), userName)
+                                        && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
+                                    //Toast.makeText(getApplicationContext(), "current COUNT: " + documentSnapshot.get("chapterID").toString(), Toast.LENGTH_SHORT).show();
+                                    currentCount = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                    totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                    Id[0] = documentSnapshot.getId();
+                                    break;
+                                }
+                            }
+
+                            if (currentCount < totalChapterCount) {
+                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                                dr.update("chapterID", currentCount + 1);
+                            }
+
+
+                        }
+                    }
+                });
+
+
                 db.collection("chapters").whereEqualTo("topicName", topic)
                         .whereEqualTo("index", index+1).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -99,6 +130,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
                                             nextChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.VISIBLE);
                                         } else {
                                             nextChapter.setVisibility(View.VISIBLE);
                                         }
@@ -131,7 +163,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 db.collection("chapters").whereEqualTo("topicName", topic)
-                        .whereEqualTo("index", index-1).get()
+                        .whereEqualTo("index", index - 1).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -159,13 +191,17 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
                                             nextChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.VISIBLE);
                                         } else {
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                             nextChapter.setVisibility(View.VISIBLE);
                                         }
                                         if(index==1) {
                                             previousChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         } else {
                                             previousChapter.setVisibility(View.VISIBLE);
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         }
 
                                     }
