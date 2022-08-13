@@ -2,6 +2,8 @@ package com.example.duofingo;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,7 +17,9 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -283,7 +287,6 @@ public class SpecificChapterActivity extends AppCompatActivity {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
                                         && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
-                                    //Toast.makeText(getApplicationContext(), "current COUNT: " + documentSnapshot.get("chapterID").toString(), Toast.LENGTH_SHORT).show();
                                     currentCount = Integer.parseInt(documentSnapshot.get("chapterID").toString());
                                     totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
                                     Id[0] = documentSnapshot.getId();
@@ -300,6 +303,8 @@ public class SpecificChapterActivity extends AppCompatActivity {
                         }
                     }
                 });
+//                Snackbar.make(findViewById(R.id.specific_chapter), "Chapter Complete!", Snackbar.LENGTH_SHORT).show();
+                finish();
             }
         });
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
