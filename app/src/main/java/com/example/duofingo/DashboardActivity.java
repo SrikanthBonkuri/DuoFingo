@@ -100,6 +100,8 @@ public class DashboardActivity extends AppCompatActivity
     String currentPassword;
     String currentCountry;
 
+    TextView continueReadingTextNoDataView;
+
     List<Pair> countryRanks = new ArrayList<>();
 
     Chip heyUsername;
@@ -157,6 +159,8 @@ public class DashboardActivity extends AppCompatActivity
         viewDiscussions = findViewById(R.id.view_discussions);
         weeklyQuiz = findViewById(R.id.weeklyQuizButton);
         monthlyQuiz = findViewById(R.id.monthlyQuizButton);
+
+        continueReadingTextNoDataView = findViewById(R.id.continueReadingTextNoData);
 
         weeklyQuiz.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -691,6 +695,13 @@ public class DashboardActivity extends AppCompatActivity
                                                 document.get("userID").toString()));
 
                             }
+                            if(continueReadingDataSource.size() == 0) {
+                                continueReadingTextNoDataView.setVisibility(View.VISIBLE);
+                            }
+                            else{
+                               continueReadingTextNoDataView.setVisibility(View.GONE);
+                            }
+
                             continueReadingRV = findViewById(R.id.continueReadingRecycleView);
                             continueReadingRV.setHasFixedSize(true);
                             continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this,
@@ -699,6 +710,7 @@ public class DashboardActivity extends AppCompatActivity
                                     DashboardActivity.this, DashboardActivity.this));
 
                         } else {
+
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
