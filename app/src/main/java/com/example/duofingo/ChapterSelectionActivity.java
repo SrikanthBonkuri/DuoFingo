@@ -1,16 +1,13 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,7 +21,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -102,7 +98,7 @@ public class ChapterSelectionActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ChapterSelectionActivity.this, QuizStartActivity.class);
                 intent.putExtra("userName", userName);
-                intent.putExtra("quizType", QuestionType.WEEKLY);
+                intent.putExtra("quizType", QuestionType.CHAPTER);
                 intent.putExtra("topicName", currentTopic);
                 startActivity(intent);
             }

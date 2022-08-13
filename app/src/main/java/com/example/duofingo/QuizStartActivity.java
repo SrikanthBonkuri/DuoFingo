@@ -1,13 +1,14 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -16,7 +17,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class QuizStartActivity extends AppCompatActivity {
 
@@ -27,6 +27,8 @@ public class QuizStartActivity extends AppCompatActivity {
     ArrayList<String> quizQuestions = new ArrayList<>();
     ArrayList<String> quizOptions = new ArrayList<>();
     ArrayList<String> quizAnswers = new ArrayList<>();
+    TextView title;
+    ArrayList<String> userQuestions, userOptions, userAnswers;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DB_DASHBOARD";
@@ -35,6 +37,7 @@ public class QuizStartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qiuz_start);
+        title = findViewById(R.id.title);
 
         playQuiz_home_btn = findViewById(R.id.playQuiz_home_btn);
         playQuiz_home_btn.setVisibility(View.GONE);
@@ -44,18 +47,39 @@ public class QuizStartActivity extends AppCompatActivity {
         topicName = extras.getString("topicName");
         if (QuestionType.WEEKLY == extras.get("quizType"))
         {
+            title.setText("Weekly Quiz");
             quizType = QuestionType.WEEKLY;
         }
         else if (QuestionType.MONTHLY == extras.get("quizType"))
         {
+            title.setText("Monthly Quiz");
             quizType = QuestionType.MONTHLY;
         }
         else {
             topicName = extras.getString("topicName");
+            title.setText("Chapter: " + topicName + " Quiz");
             quizType = QuestionType.CHAPTER;
         }
 
-        db.collection("questions").whereEqualTo("topicName", topicName).get()
+        userQuestions = new ArrayList<>();
+        userAnswers = new ArrayList<>();
+        userOptions = new ArrayList<>();
+
+        // Load questions data from the DB
+        getQuestionsDataFromDB(new FirestoreCallback() {
+            @Override
+            public void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions, ArrayList<String> userAnswers) {
+                Log.i("Quiz", userQuestions.toString());
+                Log.i("Quiz", userAnswers.toString());
+                Log.i("Quiz", userOptions.toString());
+                quizQuestions = (ArrayList<String>) userQuestions.clone();
+                quizAnswers = (ArrayList<String>) userAnswers.clone();
+                quizOptions = (ArrayList<String>) userOptions.clone();
+                playQuiz_home_btn.setVisibility(View.VISIBLE);
+            }
+        });
+
+        /*db.collection("questions").whereEqualTo("topicName", topicName).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -110,7 +134,7 @@ public class QuizStartActivity extends AppCompatActivity {
                     Log.d(TAG, "Error getting documents: ", task.getException());
                 }
             }
-        });
+        });*/
 
         playQuiz_home_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,4 +156,42 @@ public class QuizStartActivity extends AppCompatActivity {
         });
 
     }
+
+    private interface FirestoreCallback {
+        void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions,
+                        ArrayList<String> userAnswers);
+    }
+
+    // This method gets questions, answers and the list of answers.
+    private void getQuestionsDataFromDB(FirestoreCallback callback) {
+
+        AdaptableQuizContent adaptableQuizContent = new AdaptableQuizContent(quizType, userName,
+                topicName);
+        ArrayList<String> userSpecificQuestions = adaptableQuizContent.getUserAdaptableQuizzes();
+        Log.i("Quiz", userSpecificQuestions.toString());
+
+        db.collection("questions").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                        if (userSpecificQuestions.contains(
+                                documentSnapshot.getString("question"))) {
+                            userQuestions.add(documentSnapshot.getString("question"));
+                            Log.i("Adaptable Question", documentSnapshot.toString());
+                            ArrayList<String> dbOptions = (ArrayList<String>) documentSnapshot.get("answers");
+                            int answerIndex = ((Long) documentSnapshot.get("correctAnswer")
+                            ).intValue() - 1;
+                            userOptions.addAll(dbOptions);
+                            userAnswers.add(dbOptions.get(answerIndex));
+                            callback.onCallBack(userQuestions, userOptions, userAnswers);
+                        }
+                    }
+                }
+            }
+        });
+
+
+    }
+
 }
