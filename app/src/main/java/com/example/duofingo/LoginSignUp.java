@@ -30,6 +30,9 @@ public class LoginSignUp extends AppCompatActivity {
     private boolean isLoginSuccessful = false;
     private String dbPassword;
 
+    // Unique key store for the user
+    private String userKey;
+
     boolean isSignUp;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     Switch loginSignUpSwitch;
@@ -48,6 +51,7 @@ public class LoginSignUp extends AppCompatActivity {
         setContentView(R.layout.activity_login_sign_up);
 
         isSignUp = false;
+        userKey = "";
         loginSignUpSwitch = findViewById(R.id.login_signup_toggle);
         fullName = findViewById(R.id.signup_full_name);
         fullName.setVisibility(View.INVISIBLE);
@@ -128,6 +132,8 @@ public class LoginSignUp extends AppCompatActivity {
 
                         userName.setText(documentSnapshot.getString("userName"));
                         fullName.setText(documentSnapshot.getString("fullName"));
+                        // Set the user key
+                        userKey = documentSnapshot.getId();
                         isLoginSuccessful = true;
                         callback.onCallBack(true);
                     }
@@ -152,6 +158,7 @@ public class LoginSignUp extends AppCompatActivity {
         db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                userKey = documentReference.getId();
                 Log.i(TAG, "User Successfully pushed");
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -226,6 +233,7 @@ public class LoginSignUp extends AppCompatActivity {
         intent.putExtra("password", password.getText().toString());
         intent.putExtra("userName", userName.getText().toString());
         intent.putExtra("fullName", fullName.getText().toString());
+        intent.putExtra("userKey", userKey);
 
         startActivity(intent);
     }
