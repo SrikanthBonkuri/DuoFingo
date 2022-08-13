@@ -14,6 +14,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug
     }
 
     buildTypes {
@@ -29,6 +30,11 @@ android {
 
     buildFeatures {
         viewBinding true
+    }
+
+    lintOptions {
+        checkReleaseBuilds false // Add this
+        abortOnError false
     }
 }
 
