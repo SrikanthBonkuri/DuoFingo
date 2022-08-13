@@ -53,14 +53,13 @@ public class DiscussionBoard extends AppCompatActivity {
                 "https://duofingo-58001-default-rtdb.firebaseio.com/");
         mChatData = database.child("discussion_board");
 
-        Log.i("DB", mChatData.toString());
         getConversationHistory();
-
+        // Log.i("RDB", chatList.get(chatList.size() - 1).getMessageText());
         // Load to last position
         Log.i("Scroll size", "" + chatList.size());
         conversationList.setHasFixedSize(true);
         conversationList.setLayoutManager(new LinearLayoutManager(this));
-        conversationList.setAdapter(new MessageAdapter(DiscussionBoard.this, chatList, userName));
+        conversationList.setAdapter(adapter);
         conversationList.scrollToPosition(chatList.size()-1);
     }
 
@@ -71,6 +70,10 @@ public class DiscussionBoard extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     updateConversation(snapshot);
+                    conversationList.setHasFixedSize(true);
+                    conversationList.setLayoutManager(new LinearLayoutManager(DiscussionBoard.this));
+                    conversationList.setAdapter(adapter);
+                    conversationList.scrollToPosition(chatList.size()-1);
                     adapter.notifyDataSetChanged();
                 }
 
@@ -85,7 +88,6 @@ public class DiscussionBoard extends AppCompatActivity {
         // Clear the current list
         chatList.clear();
 
-        Log.i("RDB", "here");
         String message, user;
         long timestamp;
 
@@ -100,11 +102,11 @@ public class DiscussionBoard extends AppCompatActivity {
                 chatMessage = new ChatMessage(message, user, timestamp, false);
             }
             else {
-                chatMessage = new ChatMessage(message, user, timestamp);
+                chatMessage = new ChatMessage(message, user, timestamp, true);
             }
             chatList.add(chatMessage);
         }
-
+        Log.i("RDB", chatList.get(3).getMessageText().toString());
     }
 
     public void sendMessage(View view) {
