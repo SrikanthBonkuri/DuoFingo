@@ -59,6 +59,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         String currentChapter = extras.getString("chapter");
         String userName = extras.getString("userName");
         String currentTopic = extras.getString("topic");
+        int currentIndex = extras.getInt("currentIndex");
 
         chapterContentRecyclerView = findViewById(R.id.chapter_content_recycler_view);
         chapterName = findViewById(R.id.CHAPTER_NAME);
@@ -79,25 +80,29 @@ public class SpecificChapterActivity extends AppCompatActivity {
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentCount = null;
+                        Integer currentDbIndex = null;
                         Integer totalChapterCount = null;
+                        List<String> arr = null;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
                                         && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
                                     //Toast.makeText(getApplicationContext(), "current COUNT: " + documentSnapshot.get("chapterID").toString(), Toast.LENGTH_SHORT).show();
-                                    currentCount = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
                                     totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                    arr = (List<String>) documentSnapshot.get("completed");
                                     Id[0] = documentSnapshot.getId();
                                     break;
                                 }
                             }
 
-                            if (currentCount < totalChapterCount) {
-                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
-                                dr.update("chapterID", currentCount + 1);
-                            }
 
+                            if (currentDbIndex - 1 < currentIndex) {
+
+                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                                dr.update("chapterID", currentIndex + 1);
+                                //dr.update("completed", arr);
+                            }
 
                         }
                     }
@@ -281,30 +286,24 @@ public class SpecificChapterActivity extends AppCompatActivity {
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentCount = null;
-                        Integer totalChapterCount = null;
+                        Integer currentDbIndex = null;
+
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
                                         && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
-                                    currentCount = Integer.parseInt(documentSnapshot.get("chapterID").toString());
-                                    totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
                                     Id[0] = documentSnapshot.getId();
                                     break;
                                 }
                             }
-
-                            if (currentCount < totalChapterCount) {
+                            if (currentDbIndex - 1 < currentIndex) {
                                 DocumentReference dr = db.collection("user_topics").document(Id[0]);
-                                dr.update("chapterID", currentCount + 1);
+                                dr.update("chapterID", currentIndex + 1);
                             }
-
-
                         }
                     }
                 });
-//                Snackbar.make(findViewById(R.id.specific_chapter), "Chapter Complete!", Snackbar.LENGTH_SHORT).show();
-                finish();
             }
         });
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);

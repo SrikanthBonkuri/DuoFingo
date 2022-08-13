@@ -57,6 +57,7 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterViewHolder>{
             intent.putExtra("chapter", holder.actualChapterName);
             intent.putExtra("userName", userInfo);
             intent.putExtra("topic", this.topicName);
+            intent.putExtra("currentIndex", position);
 
 
             context.startActivity(intent);
