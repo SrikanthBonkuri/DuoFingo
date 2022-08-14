@@ -1,13 +1,16 @@
 package com.example.duofingo;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,6 +24,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,10 +68,13 @@ public class ChapterSelectionActivity extends AppCompatActivity {
                     if (!exists) {
                         TopicNameToChapterList topicNameToChapterList = new TopicNameToChapterList();
 
+                        List<String> lst = new ArrayList<>();
+
                         UserTopicsModel userTopicsModel = new UserTopicsModel();
                         userTopicsModel.chapterID = 0;
                         userTopicsModel.topicName = finalCurrentTopic;
                         userTopicsModel.userID = finalUserName;
+                        userTopicsModel.completed = lst;
                         userTopicsModel.total_chapters = Objects.requireNonNull(topicNameToChapterList.map.get(finalCurrentTopic)).length;
                         db.collection("user_topics").add(userTopicsModel).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override

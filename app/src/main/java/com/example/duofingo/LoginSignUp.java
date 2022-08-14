@@ -108,7 +108,9 @@ public class LoginSignUp extends AppCompatActivity {
                                         Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
                                                 .show();
                                         openDashboardActivity(1);
-                                    } else {
+                                        finish();
+                                    }
+                                    else {
                                         Toast.makeText(LoginSignUp.this,
                                                 "Unable to login. Check credentials.",
                                                 Toast.LENGTH_SHORT).show();
@@ -173,7 +175,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Validate the email address passed in by the user
-     * 
+     *
      * @return true if the user has a valid email, false otherwise
      */
     private boolean validateEmail() {
@@ -195,7 +197,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the username
-     * 
+     *
      * @return true if valid username
      */
     private boolean validateUsername() {
@@ -208,7 +210,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the fullName of the user signing up
-     * 
+     *
      * @return true if valid fullName,
      */
     private boolean validateFullName() {

@@ -85,6 +85,7 @@ public class DashboardActivity extends AppCompatActivity
 
     DashBoardRankingAdapter dashBoardRankingAdapter;
 
+
     // For global rank.
     RecyclerView dashBoardRankingGlobalRv;
     ArrayList<DashBoardRankingDataSourceSet> dashBoardRankingGlobalDataSource;
@@ -279,6 +280,8 @@ public class DashboardActivity extends AppCompatActivity
 //                }
 //            }
 //        });
+
+
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -580,7 +583,7 @@ public class DashboardActivity extends AppCompatActivity
 
             currentCountry = addy.getCountryName();
             final String[] Id = new String[1];
-
+            final Long[] currentUserScore = new Long[1];
             // Update the current user's country
             db.collection("users").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
@@ -588,6 +591,7 @@ public class DashboardActivity extends AppCompatActivity
                         if (Objects.equals(documentSnapshot.get("email"), currentEmail)
                                 && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                             Id[0] = documentSnapshot.getId();
+                            currentUserScore[0] = (Long) documentSnapshot.get("userScore");
                             break;
                         }
                         // documentReference[0] = db.collection("users").document()
@@ -597,6 +601,9 @@ public class DashboardActivity extends AppCompatActivity
                 DocumentReference dr = db.collection("users").document(Id[0]);
                 dr.update("country", addy.getCountryName());
                 dr.update("city", addy.getLocality());
+                dr.update("userScore", currentUserScore[0] + 10);
+                Long newScore = currentUserScore[0] + 10;
+                scoreView.setText(newScore.toString());
             });
 
         } catch (IOException e) {
@@ -709,6 +716,7 @@ public class DashboardActivity extends AppCompatActivity
                     }
                 });
 
+
     }
 
     @Override
@@ -717,6 +725,20 @@ public class DashboardActivity extends AppCompatActivity
         continueReadingDataSource.clear();
         continueReadingRV.getAdapter().notifyDataSetChanged();
         getContinueReadingData(userName);
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
+                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        scoreView.setText(documentSnapshot.get("userScore").toString());
+                        break;
+                    }
+                    //documentReference[0] = db.collection("users").document()
+                }
+            }
+
+        });
 
     }
 }
