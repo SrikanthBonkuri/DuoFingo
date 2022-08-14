@@ -37,7 +37,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
     private static final String TAG = "DB_DASHBOARD";
 
     ArrayList<String> chapter_paragraphs = new ArrayList<>();
-    FloatingActionButton floatingActionButton;
+    Button floatingActionButton;
     RecyclerView chapterContentRecyclerView;
     TextView chapterName;
     Button nextChapter;
@@ -161,11 +161,6 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                     LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
                                     chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
                                     chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs,SpecificChapterActivity.this, userName, currentTopic));
-
-                                    //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
-                                    //continueReadingRV.setHasFixedSize(true);
-                                    //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                                    //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
 
                                 } else {
                                     System.out.println("else");
