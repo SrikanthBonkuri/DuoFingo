@@ -1,5 +1,13 @@
 package com.example.duofingo;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,10 +21,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -51,6 +63,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         String currentChapter = extras.getString("chapter");
         String userName = extras.getString("userName");
         String currentTopic = extras.getString("topic");
+        int currentIndex = extras.getInt("currentIndex");
 
         chapterContentRecyclerView = findViewById(R.id.chapter_content_recycler_view);
         chapterName = findViewById(R.id.CHAPTER_NAME);
@@ -58,6 +71,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         previousChapter = findViewById(R.id.previous_chapter);
 
         floatingActionButton = findViewById(R.id.finishChapter);
+        floatingActionButton.setVisibility(View.INVISIBLE);
         chapterName.setText(currentChapter);
         if(isLastChapter) nextChapter.setVisibility(View.GONE);
         if(isFirstChapter) previousChapter.setVisibility(View.GONE);
@@ -69,6 +83,41 @@ public class SpecificChapterActivity extends AppCompatActivity {
                 Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
 
                 // Load next chapter's content
+
+                String[] Id = new String[1];
+                db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        Integer currentDbIndex = null;
+                        Integer totalChapterCount = null;
+                        List<String> arr = null;
+                        if (task.isSuccessful()) {
+                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                if (Objects.equals(documentSnapshot.get("userID"), userName)
+                                        && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
+                                    //Toast.makeText(getApplicationContext(), "current COUNT: " + documentSnapshot.get("chapterID").toString(), Toast.LENGTH_SHORT).show();
+                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                    totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                    arr = (List<String>) documentSnapshot.get("completed");
+                                    Id[0] = documentSnapshot.getId();
+                                    break;
+                                }
+                            }
+
+
+                            Log.d(TAG, "Before if statement " +currentDbIndex);
+                            if (currentIndex + 1 > currentDbIndex) {
+                                Log.d(TAG, "After if statement: " + currentIndex);
+                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                                dr.update("chapterID", currentIndex + 1);
+                                //dr.update("completed", arr);
+                            }
+
+                        }
+                    }
+                });
+
+
                 db.collection("chapters").whereEqualTo("topicName", topic)
                         .whereEqualTo("index", index+1).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -99,6 +148,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
                                             nextChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.VISIBLE);
                                         } else {
                                             nextChapter.setVisibility(View.VISIBLE);
                                         }
@@ -131,7 +181,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 db.collection("chapters").whereEqualTo("topicName", topic)
-                        .whereEqualTo("index", index-1).get()
+                        .whereEqualTo("index", index - 1).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -159,13 +209,17 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
                                             nextChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.VISIBLE);
                                         } else {
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                             nextChapter.setVisibility(View.VISIBLE);
                                         }
                                         if(index==1) {
                                             previousChapter.setVisibility(View.GONE);
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         } else {
                                             previousChapter.setVisibility(View.VISIBLE);
+                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         }
 
                                     }
@@ -244,26 +298,27 @@ public class SpecificChapterActivity extends AppCompatActivity {
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentCount = null;
-                        Integer totalChapterCount = null;
+                        Integer currentDbIndex = null;
+                        Integer totalLength = null;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
                                         && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
-                                    //Toast.makeText(getApplicationContext(), "current COUNT: " + documentSnapshot.get("chapterID").toString(), Toast.LENGTH_SHORT).show();
-                                    currentCount = Integer.parseInt(documentSnapshot.get("chapterID").toString());
-                                    totalChapterCount = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                    totalLength = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
                                     Id[0] = documentSnapshot.getId();
                                     break;
                                 }
                             }
-
-                            if (currentCount < totalChapterCount) {
-                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
-                                dr.update("chapterID", currentCount + 1);
-                            }
-
-
+                            DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                            dr.update("chapterID", totalLength);
+//                            Log.d(TAG, "Before if statement " + currentDbIndex);
+//                            if (currentIndex + 1 > currentDbIndex) {
+//                                Log.d(TAG, "After if statement: " + currentIndex);
+//
+//                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+//                                dr.update("chapterID", currentIndex + 1);
+//                            }
                         }
                     }
                 });

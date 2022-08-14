@@ -26,12 +26,15 @@ import java.util.Objects;
 
 public class LoginSignUp extends AppCompatActivity {
 
-
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DB";
     private boolean isLoginSuccessful = false;
     private String dbPassword;
     SharedPreferences sharedPreferences;
+
+    // Unique key store for the user
+    private String userKey;
+    private String profileKey = "";
 
     boolean isSignUp;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
@@ -45,7 +48,6 @@ public class LoginSignUp extends AppCompatActivity {
     Button loginRegisterButton;
     ProgressBar progressBar;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +57,7 @@ public class LoginSignUp extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("DuoFingo", MODE_PRIVATE);
 
         isSignUp = false;
+        userKey = "";
         loginSignUpSwitch = findViewById(R.id.login_signup_toggle);
         fullName = findViewById(R.id.signup_full_name);
         fullName.setVisibility(View.INVISIBLE);
@@ -77,8 +80,7 @@ public class LoginSignUp extends AppCompatActivity {
                 loginRegisterText.setText("Register");
                 loginRegisterButton.setText("Register");
                 loginAdditionalInformation.setText("Create an account!");
-            }
-            else {
+            } else {
                 fullName.setVisibility(View.INVISIBLE);
                 userName.setVisibility(View.INVISIBLE);
                 loginRegisterText.setText("Login");
@@ -95,7 +97,7 @@ public class LoginSignUp extends AppCompatActivity {
                     // post to the database
                     postToDB(userName.getText().toString(), email.getText().toString(),
                             password.getText().toString(), fullName.getText().toString());
-                    openDashboardActivity();
+                    openDashboardActivity(0);
                     finish();
                 }
 
@@ -113,6 +115,8 @@ public class LoginSignUp extends AppCompatActivity {
                                         Util.updateUserScore(userName.getText().toString(),
                                                 Constants.USER_DAILY_LOGIN_BONUS);
                                         openDashboardActivity();
+                                        openDashboardActivity(1);
+                                        finish();
                                     }
                                     else {
                                         Toast.makeText(LoginSignUp.this,
@@ -129,7 +133,7 @@ public class LoginSignUp extends AppCompatActivity {
     }
 
     private void checkLoginCredentials(String email, String password,
-                                       FirestoreCallback callback) {
+            FirestoreCallback callback) {
 
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isComplete()) {
@@ -139,6 +143,9 @@ public class LoginSignUp extends AppCompatActivity {
 
                         userName.setText(documentSnapshot.getString("userName"));
                         fullName.setText(documentSnapshot.getString("fullName"));
+                        // Set the user key
+                        userKey = documentSnapshot.getId();
+                        profileKey = documentSnapshot.getString("profilePictureID");
                         isLoginSuccessful = true;
                         callback.onCallBack(true);
                     }
@@ -163,6 +170,7 @@ public class LoginSignUp extends AppCompatActivity {
         db.collection("users").add(user).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
+                userKey = documentReference.getId();
                 Log.i(TAG, "User Successfully pushed");
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -175,6 +183,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Validate the email address passed in by the user
+     *
      * @return true if the user has a valid email, false otherwise
      */
     private boolean validateEmail() {
@@ -196,6 +205,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the username
+     *
      * @return true if valid username
      */
     private boolean validateUsername() {
@@ -208,6 +218,7 @@ public class LoginSignUp extends AppCompatActivity {
 
     /**
      * Method to validate the fullName of the user signing up
+     *
      * @return true if valid fullName,
      */
     private boolean validateFullName() {
@@ -222,24 +233,24 @@ public class LoginSignUp extends AppCompatActivity {
         if (password.getText().toString().equals("")) {
             password.setError("password cannot be empty");
             return false;
-        }
-        else if (password.getText().toString().length() < 8) {
+        } else if (password.getText().toString().length() < 8) {
             password.setError("password should be at least 8 characters long.");
         }
         return true;
     }
 
-    private void openDashboardActivity() {
+    private void openDashboardActivity(int page) {
         Intent intent = new Intent(this, DashboardActivity.class);
 
         @SuppressLint("CommitPrefEdits")
         SharedPreferences.Editor editor =  sharedPreferences.edit();
         editor.putString("userName", userName.getText().toString());
         editor.putString("fullName", fullName.getText().toString());
+        editor.putString("userKey", userKey);
+        editor.putString("profileKey", profileKey);
+        editor.putInt("pageFrom", page);
         editor.apply();
 
-        intent.putExtra("userName", userName.getText().toString());
-        intent.putExtra("fullName", fullName.getText().toString());
         startActivity(intent);
     }
 
