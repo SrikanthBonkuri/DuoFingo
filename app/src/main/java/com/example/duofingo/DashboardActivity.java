@@ -187,7 +187,7 @@ public class DashboardActivity extends AppCompatActivity
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                     if (Objects.equals(documentSnapshot.get("userName"), userName)) {
-                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        heyUsername.setText(documentSnapshot.getString("userName"));
                         scoreView.setText(documentSnapshot.get("userScore").toString());
                         currentCountry = documentSnapshot.getString("country");
                         Log.d(TAG, "MY COUNTRY" + currentCountry);
