@@ -108,8 +108,6 @@ public class LoginSignUp extends AppCompatActivity {
                                         Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
                                                 .show();
                                         openDashboardActivity(1);
-                                    } else {
-                                        openDashboardActivity();
                                         finish();
                                     }
                                     else {

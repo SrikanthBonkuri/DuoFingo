@@ -97,8 +97,9 @@ public class SpecificChapterActivity extends AppCompatActivity {
                             }
 
 
-                            if (currentDbIndex - 1 < currentIndex) {
-
+                            Log.d(TAG, "Before if statement " +currentDbIndex);
+                            if (currentIndex + 1 > currentDbIndex) {
+                                Log.d(TAG, "After if statement: " + currentIndex);
                                 DocumentReference dr = db.collection("user_topics").document(Id[0]);
                                 dr.update("chapterID", currentIndex + 1);
                                 //dr.update("completed", arr);
@@ -287,20 +288,26 @@ public class SpecificChapterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         Integer currentDbIndex = null;
-
+                        Integer totalLength = null;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
                                         && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
                                     currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                    totalLength = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
                                     Id[0] = documentSnapshot.getId();
                                     break;
                                 }
                             }
-                            if (currentDbIndex - 1 < currentIndex) {
-                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
-                                dr.update("chapterID", currentIndex + 1);
-                            }
+                            DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                            dr.update("chapterID", totalLength);
+//                            Log.d(TAG, "Before if statement " + currentDbIndex);
+//                            if (currentIndex + 1 > currentDbIndex) {
+//                                Log.d(TAG, "After if statement: " + currentIndex);
+//
+//                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+//                                dr.update("chapterID", currentIndex + 1);
+//                            }
                         }
                     }
                 });

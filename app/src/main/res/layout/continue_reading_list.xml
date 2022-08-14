@@ -12,13 +12,13 @@
         android:id="@+id/continueReadingLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700">
+        android:background="@color/blue">
 
         <ImageView
             android:id="@+id/continueReadingInageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#009688"
+            android:background="@color/blue"
             android:scaleType="centerCrop">
 
         </ImageView>
@@ -41,7 +41,7 @@
             android:layout_alignParentStart="false"
             android:layout_alignParentEnd="false"
             android:layout_alignParentBottom="true"
-            android:background="#F1EBEB"
+            android:background="@color/white"
             android:gravity="center"
             android:text="2/24"
             android:textSize="24sp" />
