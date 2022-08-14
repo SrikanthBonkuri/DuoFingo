@@ -42,7 +42,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(int position) {
             ChatMessage messageModel = messages.get(position);
             messageTV.setText(messageModel.getMessageText());
-            userTV.setText(username);
+            userTV.setText(messageModel.getMessageUser());
             SimpleDateFormat sdf = new SimpleDateFormat("   MM/dd HH:mm",  Locale.US);
             String time = sdf.format(new Date((long) messages.get(position).getMessageTime()));
             dateTV.setText(time);
@@ -62,7 +62,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         void bind(int position) {
             ChatMessage messageModel = messages.get(position);
             messageTV.setText(messageModel.getMessageText());
-            userTV.setText(username);
+            userTV.setText(messageModel.getMessageUser());
             SimpleDateFormat sdf = new SimpleDateFormat("   MM/dd HH:mm",  Locale.US);
             String time = sdf.format(new Date((long) messages.get(position).getMessageTime()));
             dateTV.setText(time);

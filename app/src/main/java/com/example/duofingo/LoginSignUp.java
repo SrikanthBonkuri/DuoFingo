@@ -2,6 +2,7 @@ package com.example.duofingo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +30,7 @@ public class LoginSignUp extends AppCompatActivity {
     private static final String TAG = "DB";
     private boolean isLoginSuccessful = false;
     private String dbPassword;
+    SharedPreferences sharedPreferences;
 
     // Unique key store for the user
     private String userKey;
@@ -50,6 +52,9 @@ public class LoginSignUp extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_sign_up);
+
+        // Create SharedPreferences to store fields within a session.
+        sharedPreferences = getSharedPreferences("DuoFingo", MODE_PRIVATE);
 
         isSignUp = false;
         userKey = "";
@@ -107,6 +112,8 @@ public class LoginSignUp extends AppCompatActivity {
                                     if (isValidCredentials) {
                                         Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
                                                 .show();
+                                        Util.updateUserScore(userName.getText().toString(),
+                                                Constants.USER_DAILY_LOGIN_BONUS);
                                         openDashboardActivity(1);
                                         finish();
                                     }
@@ -233,20 +240,16 @@ public class LoginSignUp extends AppCompatActivity {
 
     private void openDashboardActivity(int page) {
         Intent intent = new Intent(this, DashboardActivity.class);
-        intent.putExtra("userEmail", email.getText().toString());
-        intent.putExtra("password", password.getText().toString());
-        intent.putExtra("userName", userName.getText().toString());
-        intent.putExtra("fullName", fullName.getText().toString());
-        intent.putExtra("userKey", userKey);
-        intent.putExtra("profileKey", profileKey);
-        intent.putExtra("pageFrom", page);
 
-        startActivity(intent);
-    }
+        @SuppressLint("CommitPrefEdits")
+        SharedPreferences.Editor editor =  sharedPreferences.edit();
+        editor.putString("userName", userName.getText().toString());
+        editor.putString("fullName", fullName.getText().toString());
+        editor.putString("userKey", userKey);
+        editor.putString("profileKey", profileKey);
+        editor.putInt("pageFrom", page);
+        editor.apply();
 
-    public void openTopicSelectActivity() {
-        Intent intent = new Intent(this, TopicSelectionActivity.class);
-        intent.putExtra("userName", userName.getText().toString());
         startActivity(intent);
     }
 
