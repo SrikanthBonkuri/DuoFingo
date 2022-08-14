@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -38,23 +37,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -75,7 +68,7 @@ public class DashboardActivity extends AppCompatActivity
 
     String userName;
     String fullName;
-    int pageFrom;
+    int pageFrom = -1;
 
     Handler textHandler = new Handler();
     Button topicSelect;
@@ -100,8 +93,6 @@ public class DashboardActivity extends AppCompatActivity
     Button monthlyQuiz;
 
     TextView locationText;
-    String currentEmail;
-    String currentPassword;
     String currentCountry;
 
     TextView continueReadingTextNoDataView;
@@ -126,7 +117,7 @@ public class DashboardActivity extends AppCompatActivity
 
     private FirebaseStorage storage;
     private StorageReference storageReference;
-
+    private SharedPreferences sharedPreferences;
     String userKey;
     String profilePicKey;
 
@@ -135,30 +126,19 @@ public class DashboardActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
 
-            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
-                    "DuoFingo", Context.MODE_PRIVATE);
-            userName = sharedPreferences.getString("userName", "");
-            fullName = sharedPreferences.getString("fullName", "");
-            userKey = sharedPreferences.getString("userKey", "");
-            pageFrom = sharedPreferences.getInt("pageFrom", -1);
+        sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+        userKey = sharedPreferences.getString("userKey", "");
+        pageFrom = sharedPreferences.getInt("pageFrom", -1);
+        profilePicKey = sharedPreferences.getString("profileKey", "");
 
-            if(pageFrom == 0)
-                this.openTopicSelectActivity();
-
-            profilePicKey = sharedPreferences.getString("profileKey", "");
-
-            Log.i("Preferences", userName);
-            Log.i("Preferences", fullName);
-            /*userName = extras.getString("userName");
-            fullName = extras.getString("fullName");*/
-        }
+        if(pageFrom == 0)
+            this.openTopicSelectActivity();
 
 //        db.collection("users").document(userKey).get()
-        currentEmail = extras.getString("userEmail");
-        currentPassword = extras.getString("password");
         progressBar = findViewById(R.id.rankingsProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
@@ -220,9 +200,7 @@ public class DashboardActivity extends AppCompatActivity
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
 
-        if(profilePicKey != null && !profilePicKey.equals("")) {
-            profilePicKey = extras.getString("profileKey");
-
+        if(profilePicKey.equals("")) {
             StorageReference childRefNew = storageReference.child(profilePicKey);
 
             try {
@@ -627,8 +605,7 @@ public class DashboardActivity extends AppCompatActivity
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                    if (Objects.equals(documentSnapshot.get("userName"), userName)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
                         scoreView.setText(documentSnapshot.get("userScore").toString());
                         break;

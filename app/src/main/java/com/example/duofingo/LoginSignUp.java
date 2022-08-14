@@ -114,7 +114,6 @@ public class LoginSignUp extends AppCompatActivity {
                                                 .show();
                                         Util.updateUserScore(userName.getText().toString(),
                                                 Constants.USER_DAILY_LOGIN_BONUS);
-                                        openDashboardActivity();
                                         openDashboardActivity(1);
                                         finish();
                                     }
