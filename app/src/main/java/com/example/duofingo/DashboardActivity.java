@@ -436,6 +436,49 @@ public class DashboardActivity extends AppCompatActivity
         userKey = sharedPreferences.getString("userKey", "");
         pageFrom = sharedPreferences.getInt("pageFrom", -1);
         profilePicKey = sharedPreferences.getString("profileKey", "");
+
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("userName"), userName)) {
+                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        scoreView.setText(documentSnapshot.get("userScore").toString());
+                        break;
+                    }
+                    //documentReference[0] = db.collection("users").document()
+                }
+            }
+
+        });
+
+        // Getting the reference of the storage for firebase store.
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
+
+        // Passing the profile key to pick the image file reference.
+        if(!Objects.equals(profilePicKey, "")) {
+
+            StorageReference childRefNew = storageReference.child(profilePicKey);
+
+            try {
+                File localfile = File.createTempFile("tempfile", ".jpg");
+                childRefNew.getFile(localfile)
+                        .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                // Convert the file to bitmap.
+                                Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+                                // Convert the bitmap image to drawable -
+                                // Only drawable is accepted for chip image.
+                                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                                heyUsername.setChipIcon(d);
+
+                            }
+                        });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -653,7 +696,7 @@ public class DashboardActivity extends AppCompatActivity
             super.onBackPressed();
             Intent a = new Intent(Intent.ACTION_MAIN);
             a.addCategory(Intent.CATEGORY_HOME);
-            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            a.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NO_HISTORY);
             startActivity(a);
         }
 

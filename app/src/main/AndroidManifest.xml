@@ -55,6 +55,7 @@
             android:exported="false" />
         <activity
             android:name=".LoginSignUp"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

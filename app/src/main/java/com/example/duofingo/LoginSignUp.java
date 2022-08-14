@@ -64,7 +64,7 @@ public class LoginSignUp extends AppCompatActivity {
         userName = findViewById(R.id.signup_username);
         userName.setVisibility(View.INVISIBLE);
         progressBar = findViewById(R.id.loginProgressBar);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.GONE);
 
         password = findViewById(R.id.loginPassword);
         email = findViewById(R.id.loginEmail);
@@ -90,6 +90,8 @@ public class LoginSignUp extends AppCompatActivity {
         });
 
         loginRegisterButton.setOnClickListener(v -> {
+
+            progressBar.setVisibility(View.VISIBLE);
             if (isSignUp) {
                 // do signup things
                 if (validateUsername() && validateEmail() && validatePassword() && validateFullName()) {
@@ -104,7 +106,6 @@ public class LoginSignUp extends AppCompatActivity {
             } else {
                 if (validateEmail() && validatePassword()) {
                     // if the information is in the database
-                    progressBar.setVisibility(View.VISIBLE);
                     checkLoginCredentials(email.getText().toString(), password.getText().toString(),
                             new FirestoreCallback() {
                                 @Override
@@ -125,9 +126,10 @@ public class LoginSignUp extends AppCompatActivity {
                                 }
                             });
                 }
-                progressBar.setVisibility(View.INVISIBLE);
             }
         });
+
+        progressBar.setVisibility(View.GONE);
 
     }
 

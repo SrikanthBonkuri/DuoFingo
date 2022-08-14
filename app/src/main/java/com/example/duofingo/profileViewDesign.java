@@ -1,30 +1,27 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -34,7 +31,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 import java.util.UUID;
 
 public class profileViewDesign extends AppCompatActivity {
@@ -49,6 +45,7 @@ public class profileViewDesign extends AppCompatActivity {
     String pictureId;
     String userKey;
     String profilePicKey;
+    ProgressBar progressBar;
 
     public static final int PICK_IMAGE_REQUEST = 1;
 
@@ -59,6 +56,9 @@ public class profileViewDesign extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_view_design);
+
+        progressBar = findViewById(R.id.profileProgressBar);
+        progressBar.setVisibility(View.GONE);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -130,6 +130,7 @@ public class profileViewDesign extends AppCompatActivity {
         intent.setAction(Intent.ACTION_PICK);
         startActivityForResult(Intent.createChooser(intent, "Select Image"), PICK_IMAGE_REQUEST);
 
+
     }
 
 
@@ -139,6 +140,7 @@ public class profileViewDesign extends AppCompatActivity {
 
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             try {
+                progressBar.setVisibility(View.VISIBLE);
                 final Uri imageUri = data.getData();
                 final InputStream imageStream = getContentResolver().openInputStream(imageUri);
                 Log.d("Tag in cam uri", imageUri.toString());
@@ -157,24 +159,31 @@ public class profileViewDesign extends AppCompatActivity {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                        Toast.makeText(profileViewDesign.this, "Upload successful", Toast.LENGTH_SHORT).show();
 
                         db.collection("users")
                                 .document(userKey)
                                 .update("profilePictureID",profileViewDesign.this.pictureId);
 
-
+                        Toast.makeText(profileViewDesign.this, "Upload successful", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                                "DuoFingo", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putString("profileKey", profileViewDesign.this.pictureId);
+                        editor.apply();
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(profileViewDesign.this, "Upload Failed -> " + e, Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
                     }
                 });
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.GONE);
             }
         }
     }
