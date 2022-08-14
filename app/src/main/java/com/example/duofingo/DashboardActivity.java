@@ -140,7 +140,7 @@ public class DashboardActivity extends AppCompatActivity
 
 //        db.collection("users").document(userKey).get()
         progressBar = findViewById(R.id.rankingsProgressBar);
-        progressBar.setVisibility(View.INVISIBLE);
+        progressBar.setVisibility(View.VISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
         scoreView = findViewById(R.id.chipForLevel);
         viewDiscussions = findViewById(R.id.view_discussions);
@@ -728,6 +728,8 @@ public class DashboardActivity extends AppCompatActivity
     @Override
     public void onRestart() {
         super.onRestart();
+        runRankingThread();
+
         continueReadingDataSource.clear();
         continueReadingRV.getAdapter().notifyDataSetChanged();
         getContinueReadingData(userName);

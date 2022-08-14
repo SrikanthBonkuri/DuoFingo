@@ -250,7 +250,8 @@ public class QuizPlayActivity extends AppCompatActivity {
 
             if (radiogrp.getCheckedRadioButtonId() == -1) {
                 skip++;
-                timeOverAlertDialog();
+                if (qIndex < 9)
+                    timeOverAlertDialog();
             } else {
                 checkedRadioButton = findViewById(radiogrp.getCheckedRadioButtonId());
                 String checkedAnswer = checkedRadioButton.getText().toString();
@@ -265,14 +266,16 @@ public class QuizPlayActivity extends AppCompatActivity {
                     System.out.println("Score added" +  questionScores.get(qIndex));
                     correct++;
                     txt_play_score.setText("Correct Answers : " + correct);
-                    correctAlertDialog();
+                    if (qIndex < 9)
+                        correctAlertDialog();
                     if(cTimer!=null) {
                         cTimer.cancel();
                     }
                 } else {
                     System.out.println("wrong");
                     wrong++;
-                    wrongAlertDialog();
+                    if (qIndex < 9)
+                        wrongAlertDialog();
                     if(cTimer!=null) {
                         cTimer.cancel();
                     }
@@ -348,6 +351,7 @@ public class QuizPlayActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 timeLeftMilliSeconds = countDownInMilliSecond;
+
                 statCountDownTimer();
                 alertDialog.dismiss();
             }
