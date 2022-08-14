@@ -3,7 +3,7 @@ package com.example.duofingo;
 public enum UserType {
     NOVICE(6,3,1, 10),
     INTERMEDIATE(4,3,3, 60),
-    EXPERT(2,3,5, 100);
+    EXPERT(2,3,5, 1000);
 
     private final int numEasyQuestions;
     private final int numMediumQuestions;

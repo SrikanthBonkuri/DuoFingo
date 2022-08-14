@@ -1,9 +1,10 @@
 package com.example.duofingo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -16,6 +17,7 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -35,23 +37,17 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -71,9 +67,8 @@ public class DashboardActivity extends AppCompatActivity
     private static final String TAG = "DB_DASHBOARD";
 
     String userName;
-    String userEmail;
     String fullName;
-    int pageFrom;
+    int pageFrom = -1;
 
     Handler textHandler = new Handler();
     Button topicSelect;
@@ -98,8 +93,6 @@ public class DashboardActivity extends AppCompatActivity
     Button monthlyQuiz;
 
     TextView locationText;
-    String currentEmail;
-    String currentPassword;
     String currentCountry;
 
     TextView continueReadingTextNoDataView;
@@ -110,7 +103,7 @@ public class DashboardActivity extends AppCompatActivity
 
     ProgressBar progressBar;
 
-    String[] fineLocation = { Manifest.permission.ACCESS_FINE_LOCATION };
+    String[] fineLocation = {Manifest.permission.ACCESS_FINE_LOCATION};
 
     LocationManager lm;
 
@@ -124,7 +117,7 @@ public class DashboardActivity extends AppCompatActivity
 
     private FirebaseStorage storage;
     private StorageReference storageReference;
-
+    private SharedPreferences sharedPreferences;
     String userKey;
     String profilePicKey;
 
@@ -133,31 +126,19 @@ public class DashboardActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            Log.i(TAG, "heloo welcome 0");
-            userName = extras.getString("userName");
-            userEmail = extras.getString("userEmail");
-            fullName = extras.getString("fullName");
-            userKey = extras.getString("userKey");
-            pageFrom = extras.getInt("pageFrom");
 
-            if(pageFrom == 0)
-                this.openTopicSelectActivity();
+        sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+        userKey = sharedPreferences.getString("userKey", "");
+        pageFrom = sharedPreferences.getInt("pageFrom", -1);
+        profilePicKey = sharedPreferences.getString("profileKey", "");
 
-            if(extras.getString("profileKey") != null || extras.getString("profileKey") != "" ) {
-                profilePicKey = extras.getString("profileKey");
-            }
-            else{
-                profilePicKey = "";
-            }
-
-
-        }
+        if(pageFrom == 0)
+            this.openTopicSelectActivity();
 
 //        db.collection("users").document(userKey).get()
-        currentEmail = extras.getString("userEmail");
-        currentPassword = extras.getString("password");
         progressBar = findViewById(R.id.rankingsProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
@@ -200,17 +181,26 @@ public class DashboardActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
+
         scoreView = findViewById(R.id.chipForLevel);
-
-//        profileImage = findViewById(R.id.profileImage);
-//        profileImageBig = findViewById(R.id.ProfileImageBig);
-
+        db.collection("users").get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                    if (Objects.equals(documentSnapshot.get("userName"), userName)) {
+                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
+                        scoreView.setText(documentSnapshot.get("userScore").toString());
+                        currentCountry = documentSnapshot.getString("country");
+                        Log.d(TAG, "MY COUNTRY" + currentCountry);
+                        break;
+                    }
+                    // documentReference[0] = db.collection("users").document()
+                }
+            }
+        });
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
 
-        if(profilePicKey != null && !profilePicKey.equals("")) {
-            profilePicKey = extras.getString("profileKey");
-
+        if(profilePicKey.equals("")) {
             StorageReference childRefNew = storageReference.child(profilePicKey);
 
             try {
@@ -231,26 +221,6 @@ public class DashboardActivity extends AppCompatActivity
                 e.printStackTrace();
             }
         }
-
-
-
-
-        db.collection("users").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
-                        heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
-                        scoreView.setText(documentSnapshot.get("userScore").toString());
-                        currentCountry = documentSnapshot.getString("country");
-                        Log.d(TAG, "MY COUNTRY" + currentCountry);
-                        break;
-                    }
-                    // documentReference[0] = db.collection("users").document()
-                }
-            }
-
-        });
 
         // Recycler View populate for continue Reading
         continueReadingDataSource = new ArrayList<>();
@@ -355,7 +325,6 @@ public class DashboardActivity extends AppCompatActivity
         }
     }
 
-
     private void requestStoragePermission() {
         requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, 100);
     }
@@ -435,12 +404,6 @@ public class DashboardActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    public void openQuizPlayActivity(View view) {
-        Intent intent = new Intent(this, QuizStartActivity.class);
-        startActivity(intent);
-        System.out.println("HereQuiz");
-    }
-
     private void getLocation() {
         try {
             lm = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
@@ -463,14 +426,17 @@ public class DashboardActivity extends AppCompatActivity
             e.printStackTrace();
         }
     }
-
-    // @Override
-    // protected void onResume() {
-    // super.onResume();
-    // dashBoardRankingDataSource.clear();
-    // dashBoardRankingRv.getAdapter().notifyDataSetChanged();
-    // runRankingThread();
-    // }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+        userKey = sharedPreferences.getString("userKey", "");
+        pageFrom = sharedPreferences.getInt("pageFrom", -1);
+        profilePicKey = sharedPreferences.getString("profileKey", "");
+    }
 
     @Override
     public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
@@ -494,22 +460,18 @@ public class DashboardActivity extends AppCompatActivity
             db.collection("users").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                                && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                        if (Objects.equals(documentSnapshot.get("userName"), userName)) {
                             Id[0] = documentSnapshot.getId();
                             currentUserScore[0] = (Long) documentSnapshot.get("userScore");
                             break;
                         }
                         // documentReference[0] = db.collection("users").document()
                     }
-                }
 
-                DocumentReference dr = db.collection("users").document(Id[0]);
-                dr.update("country", addy.getCountryName());
-                dr.update("city", addy.getLocality());
-                dr.update("userScore", currentUserScore[0] + 10);
-                Long newScore = currentUserScore[0] + 10;
-                scoreView.setText(newScore.toString());
+                    DocumentReference dr = db.collection("users").document(Id[0]);
+                    dr.update("country", addy.getCountryName());
+                    dr.update("city", addy.getLocality());
+                }
             });
 
         } catch (IOException e) {
@@ -616,7 +578,6 @@ public class DashboardActivity extends AppCompatActivity
                                     DashboardActivity.this, DashboardActivity.this));
 
                         } else {
-
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
@@ -631,16 +592,23 @@ public class DashboardActivity extends AppCompatActivity
         continueReadingDataSource.clear();
         continueReadingRV.getAdapter().notifyDataSetChanged();
         getContinueReadingData(userName);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+        userKey = sharedPreferences.getString("userKey", "");
+        pageFrom = sharedPreferences.getInt("pageFrom", -1);
+        profilePicKey = sharedPreferences.getString("profileKey", "");
+
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                    if (Objects.equals(documentSnapshot.get("userName"), userName)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
                         scoreView.setText(documentSnapshot.get("userScore").toString());
-                        profilePicKey = documentSnapshot.getString("profilePictureID");
                         break;
                     }
+                    //documentReference[0] = db.collection("users").document()
                 }
             }
 
@@ -672,6 +640,30 @@ public class DashboardActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
+    }
 
+    boolean doubleBackToExitPressedOnce = false;
+
+    @Override
+    public void onBackPressed() {
+
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 3000);
     }
 }
