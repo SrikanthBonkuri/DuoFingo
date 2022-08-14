@@ -200,7 +200,7 @@ public class DashboardActivity extends AppCompatActivity
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
 
-        if(profilePicKey.equals("")) {
+        if(!profilePicKey.equals("")) {
             StorageReference childRefNew = storageReference.child(profilePicKey);
 
             try {

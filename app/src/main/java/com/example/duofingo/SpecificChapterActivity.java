@@ -81,8 +81,6 @@ public class SpecificChapterActivity extends AppCompatActivity {
         nextChapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Update UserScore
-                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
 
                 // Load next chapter's content
 
@@ -112,6 +110,9 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                 Log.d(TAG, "After if statement: " + currentIndex);
                                 DocumentReference dr = db.collection("user_topics").document(Id[0]);
                                 dr.update("chapterID", currentIndex + 1);
+
+                                // Update UserScore
+                                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
 
                                 currentIndex++;
                                 //dr.update("completed", arr);
@@ -286,15 +287,13 @@ public class SpecificChapterActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Update UserScore
-                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
 
                 String[] Id = new String[1];
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentDbIndex = null;
-                        Integer totalLength = null;
+                        Integer currentDbIndex = 0;
+                        Integer totalLength = 0;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
                                 if (Objects.equals(documentSnapshot.get("userID"), userName)
@@ -305,6 +304,12 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                     break;
                                 }
                             }
+
+                            if(currentDbIndex < totalLength) {
+                                // Update UserScore
+                                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
+                            }
+
                             DocumentReference dr = db.collection("user_topics").document(Id[0]);
                             dr.update("chapterID", totalLength);
 
