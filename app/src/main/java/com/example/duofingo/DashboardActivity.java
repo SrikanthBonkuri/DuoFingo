@@ -1,7 +1,9 @@
 package com.example.duofingo;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -10,11 +12,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -47,7 +51,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
 
 
     String userName;
-    String userEmail;
     String fullName;
 
     Handler textHandler = new Handler();
@@ -98,13 +101,16 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             Log.i(TAG,"heloo welcome 0");
-            userName = extras.getString("userName");
-            userEmail = extras.getString("userEmail");
-            fullName = extras.getString("fullName");
 
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                    "DuoFingo", Context.MODE_PRIVATE);
+            userName = sharedPreferences.getString("userName", "");
+            fullName = sharedPreferences.getString("fullName", "");
+            Log.i("Preferences", userName);
+            Log.i("Preferences", fullName);
+            /*userName = extras.getString("userName");
+            fullName = extras.getString("fullName");*/
         }
-        currentEmail = extras.getString("userEmail");
-        currentPassword = extras.getString("password");
         progressBar = findViewById(R.id.rankingsProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
         heyUsername = findViewById(R.id.chipForProfile);
@@ -119,6 +125,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 Intent intent = new Intent(DashboardActivity.this,
                         QuizStartActivity.class);
                 intent.putExtra("userName", userName);
+                intent.putExtra("fullName", fullName);
                 intent.putExtra("quizType", QuestionType.WEEKLY);
                 startActivity(intent);
                 //finish();
@@ -131,6 +138,7 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 Intent intent = new Intent(DashboardActivity.this,
                         QuizStartActivity.class);
                 intent.putExtra("userName", userName);
+                intent.putExtra("fullName", fullName);
                 intent.putExtra("quizType", QuestionType.MONTHLY);
                 startActivity(intent);
                 //finish();
@@ -145,13 +153,12 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                 startActivity(intent);
             }
         });
-        scoreView = findViewById(R.id.chipForLevel);
 
+        scoreView = findViewById(R.id.chipForLevel);
         db.collection("users").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                    if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                            && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                    if (Objects.equals(documentSnapshot.get("userName"), userName)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
                         scoreView.setText(documentSnapshot.get("userScore").toString());
                         currentCountry = documentSnapshot.getString("country");
@@ -161,8 +168,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
                     //documentReference[0] = db.collection("users").document()
                 }
             }
-
-
         });
 
         // Recycler View populate for continue Reading
@@ -265,12 +270,6 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         startActivity(intent);
     }
 
-    public void openQuizPlayActivity(View view) {
-        Intent intent = new Intent(this, QuizStartActivity.class);
-        startActivity(intent);
-        System.out.println("HereQuiz");
-    }
-
     private void getLocation() {
         try {
             lm = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
@@ -291,13 +290,17 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        dashBoardRankingDataSource.clear();
-//        dashBoardRankingRv.getAdapter().notifyDataSetChanged();
-//        runRankingThread();
-//    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+        /*dashBoardRankingDataSource.clear();
+        dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+        runRankingThread();*/
+    }
 
     @Override
     public void onSelectChapter(ContinueReadingDataSource continueReadingData) {
@@ -320,18 +323,17 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
             db.collection("users").get().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        if (Objects.equals(documentSnapshot.get("email"), currentEmail)
-                        && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
+                        if (Objects.equals(documentSnapshot.get("userName"), userName)) {
                             Id[0] = documentSnapshot.getId();
                             break;
                         }
                         //documentReference[0] = db.collection("users").document()
                     }
-                }
 
-                DocumentReference dr = db.collection("users").document(Id[0]);
-                dr.update("country", addy.getCountryName());
-                dr.update("city", addy.getLocality());
+                    DocumentReference dr = db.collection("users").document(Id[0]);
+                    dr.update("country", addy.getCountryName());
+                    dr.update("city", addy.getLocality());
+                }
             });
 
 
@@ -448,6 +450,34 @@ public class DashboardActivity extends AppCompatActivity implements ContinueRead
         continueReadingDataSource.clear();
         continueReadingRV.getAdapter().notifyDataSetChanged();
         getContinueReadingData(userName);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(
+                "DuoFingo", Context.MODE_PRIVATE);
+        userName = sharedPreferences.getString("userName", "");
+        fullName = sharedPreferences.getString("fullName", "");
+    }
 
+    boolean doubleBackToExitPressedOnce = false;
+
+    @Override
+    public void onBackPressed() {
+
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed();
+            Intent a = new Intent(Intent.ACTION_MAIN);
+            a.addCategory(Intent.CATEGORY_HOME);
+            a.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(a);
+        }
+
+        this.doubleBackToExitPressedOnce = true;
+        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show();
+
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+
+            @Override
+            public void run() {
+                doubleBackToExitPressedOnce=false;
+            }
+        }, 3000);
     }
 }

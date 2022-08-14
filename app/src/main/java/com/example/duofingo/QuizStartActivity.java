@@ -22,6 +22,7 @@ public class QuizStartActivity extends AppCompatActivity {
 
     Button playQuiz_home_btn;
     String userName;
+    String fullName;
     QuestionType quizType;
     String topicName;
     ArrayList<String> quizQuestions = new ArrayList<>();
@@ -45,6 +46,7 @@ public class QuizStartActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         userName = extras.getString("userName");
+        fullName = extras.getString("fullName");
         topicName = extras.getString("topicName");
         if (QuestionType.WEEKLY == extras.get("quizType"))
         {
@@ -149,6 +151,7 @@ public class QuizStartActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(QuizStartActivity.this, QuizPlayActivity.class);
                 intent.putExtra("userName", userName);
+                intent.putExtra("fullName", fullName);
                 intent.putExtra("quizType", quizType);
                 intent.putExtra("topicName", topicName);
                 intent.putExtra("quizQuestions", quizQuestions);

@@ -135,7 +135,7 @@ public class QuizPlayActivity extends AppCompatActivity {
     Button correctOK;
     TextView tvScore;
     TextView tvWrongDialogCorrectAns;
-    String userName;
+    String userName, fullName;
     String topicName = "";
 
     @SuppressLint("SetTextI18n")
@@ -156,6 +156,7 @@ public class QuizPlayActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         userName = extras.getString("userName");
+        fullName = extras.getString("fullName");
 
         if (QuestionType.WEEKLY == extras.get("quizType"))
         {
@@ -231,6 +232,8 @@ public class QuizPlayActivity extends AppCompatActivity {
                 updateUserScore(userName, userScoreByCorrectAnswer);
 
                 Intent intent = new Intent(QuizPlayActivity.this, QuizResultActivity.class);
+                intent.putExtra("fullName", fullName);
+                intent.putExtra("userName", userName);
                 intent.putExtra("correct", correct);
                 intent.putExtra("wrong", wrong);
                 intent.putExtra("skip", skip);

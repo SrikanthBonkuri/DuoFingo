@@ -22,6 +22,8 @@ public class QuizResultActivity extends AppCompatActivity {
     TextView tvHome;
     TextView tvPlayAgain;
 
+    String userName, fullName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,8 @@ public class QuizResultActivity extends AppCompatActivity {
         totalScore = intent.getIntExtra("correct", 0);
         wrong = intent.getIntExtra("wrong", 0);
         skip = intent.getIntExtra("skip", 0);
+        userName = intent.getStringExtra("userName");
+        fullName = intent.getStringExtra("fullName");
 
         tvHome = findViewById(R.id.tvHome);
         tvright = findViewById(R.id.tvright);
@@ -41,6 +45,7 @@ public class QuizResultActivity extends AppCompatActivity {
         tvright.setText("Correct: " + totalScore);
         tvwrong.setText("Wrong: " + wrong);
         tvSkip.setText("Skip: " + skip);
+
         if (totalScore >= 6) {
             Toast.makeText(this, "Wow Great", Toast.LENGTH_SHORT).show();
         } else {
@@ -57,8 +62,8 @@ public class QuizResultActivity extends AppCompatActivity {
         tvHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                finish();
+                Intent intent = new Intent(QuizResultActivity.this, DashboardActivity.class);
+                startActivity(intent);
                 finish();
             }
         });

@@ -2,6 +2,7 @@ package com.example.duofingo;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +31,7 @@ public class LoginSignUp extends AppCompatActivity {
     private static final String TAG = "DB";
     private boolean isLoginSuccessful = false;
     private String dbPassword;
+    SharedPreferences sharedPreferences;
 
     boolean isSignUp;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
@@ -49,6 +51,8 @@ public class LoginSignUp extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_sign_up);
 
+        // Create SharedPreferences to store fields within a session.
+        sharedPreferences = getSharedPreferences("DuoFingo", MODE_PRIVATE);
 
         isSignUp = false;
         loginSignUpSwitch = findViewById(R.id.login_signup_toggle);
@@ -227,11 +231,15 @@ public class LoginSignUp extends AppCompatActivity {
 
     private void openDashboardActivity() {
         Intent intent = new Intent(this, DashboardActivity.class);
-        intent.putExtra("userEmail", email.getText().toString());
-        intent.putExtra("password", password.getText().toString());
+
+        @SuppressLint("CommitPrefEdits")
+        SharedPreferences.Editor editor =  sharedPreferences.edit();
+        editor.putString("userName", userName.getText().toString());
+        editor.putString("fullName", fullName.getText().toString());
+        editor.apply();
+
         intent.putExtra("userName", userName.getText().toString());
         intent.putExtra("fullName", fullName.getText().toString());
-
         startActivity(intent);
     }
 
