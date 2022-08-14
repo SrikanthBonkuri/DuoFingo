@@ -234,6 +234,7 @@ public class LoginSignUp extends AppCompatActivity {
             return false;
         } else if (password.getText().toString().length() < 8) {
             password.setError("password should be at least 8 characters long.");
+            return false;
         }
         return true;
     }

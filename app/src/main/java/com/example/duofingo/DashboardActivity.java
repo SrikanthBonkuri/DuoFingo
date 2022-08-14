@@ -619,27 +619,29 @@ public class DashboardActivity extends AppCompatActivity
         storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
 
         // Passing the profile key to pick the image file reference.
-        StorageReference childRefNew = storageReference.child(profilePicKey);
+        if(!Objects.equals(profilePicKey, "")) {
 
-        try {
-            File localfile = File.createTempFile("tempfile", ".jpg");
-            childRefNew.getFile(localfile)
-                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                            // Convert the file to bitmap.
-                            Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
-                            // Convert the bitmap image to drawable -
-                            // Only drawable is accepted for chip image.
-                            Drawable d = new BitmapDrawable(getResources(), bitmap);
-                            heyUsername.setChipIcon(d);
+            StorageReference childRefNew = storageReference.child(profilePicKey);
 
-                        }
-                    });
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                File localfile = File.createTempFile("tempfile", ".jpg");
+                childRefNew.getFile(localfile)
+                        .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                // Convert the file to bitmap.
+                                Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+                                // Convert the bitmap image to drawable -
+                                // Only drawable is accepted for chip image.
+                                Drawable d = new BitmapDrawable(getResources(), bitmap);
+                                heyUsername.setChipIcon(d);
+
+                            }
+                        });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     boolean doubleBackToExitPressedOnce = false;

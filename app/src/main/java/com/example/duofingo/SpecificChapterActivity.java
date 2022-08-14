@@ -41,7 +41,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
     private static final String TAG = "DB_DASHBOARD";
 
     ArrayList<String> chapter_paragraphs = new ArrayList<>();
-    Button floatingActionButton;
+//    Button floatingActionButton;
     RecyclerView chapterContentRecyclerView;
     TextView chapterName;
     Button nextChapter;
@@ -54,6 +54,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
     String chapter;
 
     int currentIndex;
+    int totalChapterCount;
 
 
     @Override
@@ -65,22 +66,74 @@ public class SpecificChapterActivity extends AppCompatActivity {
         String currentChapter = extras.getString("chapter");
         String userName = extras.getString("userName");
         String currentTopic = extras.getString("topic");
-        currentIndex = extras.getInt("currentIndex") ;
+        currentIndex = extras.getInt("currentIndex");
+        totalChapterCount = extras.getInt("totalChapter");
 
         chapterContentRecyclerView = findViewById(R.id.chapter_content_recycler_view);
         chapterName = findViewById(R.id.CHAPTER_NAME);
         nextChapter = findViewById(R.id.next_chapter);
         previousChapter = findViewById(R.id.previous_chapter);
 
-        floatingActionButton = findViewById(R.id.finishChapter);
-        floatingActionButton.setVisibility(View.INVISIBLE);
+//        floatingActionButton = findViewById(R.id.finishChapter);
+//        floatingActionButton.setVisibility(View.INVISIBLE);
         chapterName.setText(currentChapter);
-        if(isLastChapter) nextChapter.setVisibility(View.GONE);
-        if(isFirstChapter) previousChapter.setVisibility(View.GONE);
+        if(currentIndex == 0) {
+            previousChapter.setVisibility(View.GONE);
+        }
+
+        if(currentIndex + 1 == totalChapterCount) {
+            nextChapter.setText(" FINISH ");
+        }
+//        if(isLastChapter) {
+//            nextChapter.setVisibility(View.GONE);
+//        }
+//        if(isFirstChapter) previousChapter.setVisibility(View.GONE);
 
         nextChapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                if(currentIndex + 1 == totalChapterCount) {
+                    // Update the db for last page of the chapter.
+                    // Move to dashboard.
+                    // Update UserScore
+                    String[] Id = new String[1];
+                    db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            Integer currentDbIndex = 0;
+                            Integer totalLength = 0;
+                            if (task.isSuccessful()) {
+                                for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                                    if (Objects.equals(documentSnapshot.get("userID"), userName)
+                                            && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
+                                        currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+                                        totalLength = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+                                        Id[0] = documentSnapshot.getId();
+                                        break;
+                                    }
+                                }
+
+                                if(currentDbIndex < totalLength) {
+                                    // Update UserScore
+                                    Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
+                                }
+
+                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
+                                dr.update("chapterID", totalLength);
+
+                                // Navigate to dashboard.
+                                Intent intent = new Intent(SpecificChapterActivity.this, DashboardActivity.class);
+                                startActivity(intent);
+                                finish();
+
+
+                            }
+                        }
+                    });
+
+
+                }
 
                 // Load next chapter's content
 
@@ -89,7 +142,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         Integer currentDbIndex = 0;
-                        Integer totalChapterCount = 0;
+//                        Integer totalChapterCount = 0;
                         List<String> arr = null;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
@@ -155,10 +208,12 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         chapterName.setText(chapter);
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
-                                            nextChapter.setVisibility(View.GONE);
-                                            floatingActionButton.setVisibility(View.VISIBLE);
+                                            nextChapter.setVisibility(View.VISIBLE);
+                                            nextChapter.setText(  " FINISH "  );
+//                                            floatingActionButton.setVisibility(View.VISIBLE);
                                         } else {
                                             nextChapter.setVisibility(View.VISIBLE);
+                                            nextChapter.setText("  NEXT  ");
                                         }
                                         if(index==1) {
                                             previousChapter.setVisibility(View.GONE);
@@ -208,18 +263,20 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         chapterName.setText(chapter);
                                         isLastChapter = lFlag;
                                         if(isLastChapter) {
-                                            nextChapter.setVisibility(View.GONE);
-                                            floatingActionButton.setVisibility(View.VISIBLE);
-                                        } else {
-                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                             nextChapter.setVisibility(View.VISIBLE);
+                                            nextChapter.setText(  " FINISH "  );
+//                                            floatingActionButton.setVisibility(View.VISIBLE);
+                                        } else {
+//                                            floatingActionButton.setVisibility(View.INVISIBLE);
+                                            nextChapter.setVisibility(View.VISIBLE);
+                                            nextChapter.setText("  NEXT  ");
                                         }
                                         if(index==1) {
                                             previousChapter.setVisibility(View.GONE);
-                                            floatingActionButton.setVisibility(View.INVISIBLE);
+//                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         } else {
                                             previousChapter.setVisibility(View.VISIBLE);
-                                            floatingActionButton.setVisibility(View.INVISIBLE);
+//                                            floatingActionButton.setVisibility(View.INVISIBLE);
                                         }
 
                                     }
@@ -284,46 +341,46 @@ public class SpecificChapterActivity extends AppCompatActivity {
                     }
                 });
 
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                String[] Id = new String[1];
-                db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentDbIndex = 0;
-                        Integer totalLength = 0;
-                        if (task.isSuccessful()) {
-                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                                if (Objects.equals(documentSnapshot.get("userID"), userName)
-                                        && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
-                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
-                                    totalLength = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
-                                    Id[0] = documentSnapshot.getId();
-                                    break;
-                                }
-                            }
-
-                            if(currentDbIndex < totalLength) {
-                                // Update UserScore
-                                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
-                            }
-
-                            DocumentReference dr = db.collection("user_topics").document(Id[0]);
-                            dr.update("chapterID", totalLength);
-
-                            Intent intent = new Intent(SpecificChapterActivity.this, DashboardActivity.class);
-
-                            startActivity(intent);
-                            finish();
-
-
-                        }
-                    }
-                });
-            }
-        });
+//        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                String[] Id = new String[1];
+//                db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        Integer currentDbIndex = 0;
+//                        Integer totalLength = 0;
+//                        if (task.isSuccessful()) {
+//                            for (DocumentSnapshot documentSnapshot : task.getResult()) {
+//                                if (Objects.equals(documentSnapshot.get("userID"), userName)
+//                                        && Objects.equals(documentSnapshot.get("topicName"), currentTopic)) {
+//                                    currentDbIndex = Integer.parseInt(documentSnapshot.get("chapterID").toString());
+//                                    totalLength = Integer.parseInt(documentSnapshot.get("total_chapters").toString());
+//                                    Id[0] = documentSnapshot.getId();
+//                                    break;
+//                                }
+//                            }
+//
+//                            if(currentDbIndex < totalLength) {
+//                                // Update UserScore
+//                                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
+//                            }
+//
+//                            DocumentReference dr = db.collection("user_topics").document(Id[0]);
+//                            dr.update("chapterID", totalLength);
+//
+//                            Intent intent = new Intent(SpecificChapterActivity.this, DashboardActivity.class);
+//
+//                            startActivity(intent);
+//                            finish();
+//
+//
+//                        }
+//                    }
+//                });
+//            }
+//        });
 
     }
 }
