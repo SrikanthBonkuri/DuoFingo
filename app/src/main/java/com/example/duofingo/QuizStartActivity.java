@@ -29,6 +29,7 @@ public class QuizStartActivity extends AppCompatActivity {
     ArrayList<String> quizAnswers = new ArrayList<>();
     TextView title;
     ArrayList<String> userQuestions, userOptions, userAnswers;
+    ArrayList<Integer> questionScores;
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     private static final String TAG = "DB_DASHBOARD";
@@ -61,6 +62,7 @@ public class QuizStartActivity extends AppCompatActivity {
             quizType = QuestionType.CHAPTER;
         }
 
+        questionScores = new ArrayList<>();
         userQuestions = new ArrayList<>();
         userAnswers = new ArrayList<>();
         userOptions = new ArrayList<>();
@@ -68,7 +70,8 @@ public class QuizStartActivity extends AppCompatActivity {
         // Load questions data from the DB
         getQuestionsDataFromDB(new FirestoreCallback() {
             @Override
-            public void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions, ArrayList<String> userAnswers) {
+            public void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions,
+                                   ArrayList<String> userAnswers, ArrayList<Integer> questionScores) {
                 Log.i("Quiz", userQuestions.toString());
                 Log.i("Quiz", userAnswers.toString());
                 Log.i("Quiz", userOptions.toString());
@@ -151,6 +154,7 @@ public class QuizStartActivity extends AppCompatActivity {
                 intent.putExtra("quizQuestions", quizQuestions);
                 intent.putExtra("quizAnswers", quizAnswers);
                 intent.putExtra("quizOptions", quizOptions);
+                intent.putExtra("quizScores", questionScores);
                 startActivity(intent);
             }
         });
@@ -159,7 +163,7 @@ public class QuizStartActivity extends AppCompatActivity {
 
     private interface FirestoreCallback {
         void onCallBack(ArrayList<String> userQuestions, ArrayList<String> userOptions,
-                        ArrayList<String> userAnswers);
+                        ArrayList<String> userAnswers, ArrayList<Integer> questionScores);
     }
 
     // This method gets questions, answers and the list of answers.
@@ -184,7 +188,19 @@ public class QuizStartActivity extends AppCompatActivity {
                             ).intValue() - 1;
                             userOptions.addAll(dbOptions);
                             userAnswers.add(dbOptions.get(answerIndex));
-                            callback.onCallBack(userQuestions, userOptions, userAnswers);
+                            switch (QuestionDifficulty.valueOf(documentSnapshot.getString("difficulty"))) {
+                                case EASY:
+                                    questionScores.add(QuestionDifficulty.EASY.getQuestionScore());
+                                    break;
+                                case MEDIUM:
+                                    questionScores.add(QuestionDifficulty.MEDIUM.getQuestionScore());
+                                    break;
+                                case HARD:
+                                    questionScores.add(QuestionDifficulty.HARD.getQuestionScore());
+                                    break;
+                            }
+
+                            callback.onCallBack(userQuestions, userOptions, userAnswers, questionScores);
                         }
                     }
                 }

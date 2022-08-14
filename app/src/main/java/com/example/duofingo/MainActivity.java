@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
                 i++;
                 if (i == catchPhrases.length)
                     i = 0;
-                catchPhrase.postDelayed(this, 5000);
+                catchPhrase.postDelayed(this, 2000);
             }
         });
 

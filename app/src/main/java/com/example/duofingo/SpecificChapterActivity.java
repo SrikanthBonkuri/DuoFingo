@@ -1,26 +1,22 @@
 package com.example.duofingo;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -69,6 +65,10 @@ public class SpecificChapterActivity extends AppCompatActivity {
         nextChapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Update UserScore
+                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
+
+                // Load next chapter's content
                 db.collection("chapters").whereEqualTo("topicName", topic)
                         .whereEqualTo("index", index+1).get()
                         .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -237,6 +237,9 @@ public class SpecificChapterActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Update UserScore
+                Util.updateUserScore(userName, Constants.USER_CHAPTER_COMPLETION_BONUS);
+
                 String[] Id = new String[1];
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

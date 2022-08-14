@@ -106,6 +106,8 @@ public class LoginSignUp extends AppCompatActivity {
                                     if (isValidCredentials) {
                                         Toast.makeText(LoginSignUp.this, "Login Successful", Toast.LENGTH_SHORT)
                                                 .show();
+                                        Util.updateUserScore(userName.getText().toString(),
+                                                Constants.USER_DAILY_LOGIN_BONUS);
                                         openDashboardActivity();
                                     }
                                     else {

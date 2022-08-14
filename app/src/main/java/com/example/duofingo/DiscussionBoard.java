@@ -118,6 +118,7 @@ public class DiscussionBoard extends AppCompatActivity {
         mChatData.push().setValue(
                 new ChatMessage(input.getText().toString(), userName)
         );
+        Util.updateUserScore(userName, Constants.USER_DISCUSSION_BOARD_BONUS);
 
         // Clear the input
         input.setText("");
