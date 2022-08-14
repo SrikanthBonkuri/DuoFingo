@@ -256,6 +256,7 @@ public class DashboardActivity extends AppCompatActivity
 
         }
         getLocation();
+//        runRankingThread();
 
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
@@ -529,6 +530,63 @@ public class DashboardActivity extends AppCompatActivity
         new Thread(determineRankings).start();
     }
 
+//    class DetermineRankings implements Runnable {
+//
+//        @Override
+//        public void run() {
+//
+//            try {
+//                textHandler.post(() -> {
+//                    countryRanks.clear();
+//                    dashBoardRankingDataSource.clear();
+//                    dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+//                    progressBar.setVisibility(View.VISIBLE);
+//                });
+//
+//                textHandler.post(() -> {
+//                    progressBar.setVisibility(View.VISIBLE);
+//                });
+//                Thread.sleep(700);
+//                db.collection("users").get().addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+//                            Log.d(TAG, "THIS IS THE CURRENT COUNTRY: " + currentCountry);
+//                            if (Objects.equals(documentSnapshot.get("country"), currentCountry)) {
+//                                // dashBoardRankingDataSource.add(new DashBoardRankingDataSourceSet("Jai", "1",
+//                                // "12"))
+//                                // Log.d(TAG, "THIS IS THE CURRENT USER'S FULL NAME: " +
+//                                // documentSnapshot.getString("fullName"));
+//                                // Log.d(TAG, "THIS IS THE CURRENT USER'S FULL SCORE: " +
+//                                // documentSnapshot.getLong("userScore"));
+//                                countryRanks.add(new Pair((String) documentSnapshot.getString("fullName"),
+//                                        (Long) documentSnapshot.getLong("userScore")));
+//                            }
+//                        }
+//                    }
+//
+//                    Log.d(TAG, "CURRENT LIST: " + countryRanks);
+//
+//                    Collections.sort(countryRanks, (a, b) -> b.score.compareTo(a.score));
+//                    for (Integer i = 0; i < countryRanks.size(); i++) {
+//                        Pair current = countryRanks.get(i);
+//                        Integer rank = i + 1;
+//
+//                        dashBoardRankingDataSource.add(new CountryRankingDataSourceSet(current.name, rank.toString()));
+//                    }
+//                    textHandler.post(() -> dashBoardRankingRv.getAdapter().notifyDataSetChanged());
+//
+//                });
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//
+//            textHandler.post(() -> {
+//                dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+//                progressBar.setVisibility(View.INVISIBLE);
+//            });
+//        }
+//    }
     class DetermineRankings implements Runnable {
 
         @Override
@@ -538,7 +596,9 @@ public class DashboardActivity extends AppCompatActivity
                 textHandler.post(() -> {
                     countryRanks.clear();
                     dashBoardRankingDataSource.clear();
+                    dashBoardRankingGlobalDataSource.clear();
                     dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+                    dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged();
                     progressBar.setVisibility(View.VISIBLE);
                 });
 
@@ -572,7 +632,42 @@ public class DashboardActivity extends AppCompatActivity
 
                         dashBoardRankingDataSource.add(new CountryRankingDataSourceSet(current.name, rank.toString()));
                     }
+
+
+                    db.collection("users")
+                            .orderBy("userScore", Query.Direction.DESCENDING)
+                            .get()
+                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        int rankIndex = 1;
+                                        for (DocumentSnapshot document : task.getResult()) {
+
+                                            dashBoardRankingGlobalDataSource.add(
+                                                    new DashBoardRankingDataSourceSet(
+                                                            document.getString("fullName"),
+                                                            Integer.toString(rankIndex),
+                                                            document.getString("country")));
+                                            rankIndex++;
+
+                                        }
+                                        dashBoardRankingGlobalRv = findViewById(R.id.dashBoardRankingRecycleView_global);
+                                        dashBoardRankingGlobalRv.setHasFixedSize(true);
+                                        dashBoardRankingGlobalRv.setLayoutManager(new LinearLayoutManager(DashboardActivity.this));
+                                        dashBoardRankingGlobalRv.setAdapter(new DashBoardRankingGlobalAdapter(
+                                                dashBoardRankingGlobalDataSource, DashboardActivity.this, fullName));
+                                        textHandler.post(() -> dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged());
+
+                                    } else {
+                                        Log.d(TAG, "Error getting documents for global rank: ", task.getException());
+                                    }
+                                }
+                            });
+
                     textHandler.post(() -> dashBoardRankingRv.getAdapter().notifyDataSetChanged());
+                    //textHandler.post(() -> dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged());
+
 
                 });
 
@@ -582,6 +677,7 @@ public class DashboardActivity extends AppCompatActivity
 
             textHandler.post(() -> {
                 dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+                dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged();
                 progressBar.setVisibility(View.INVISIBLE);
             });
         }
