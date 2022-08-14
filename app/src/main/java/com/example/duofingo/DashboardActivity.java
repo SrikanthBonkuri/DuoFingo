@@ -232,54 +232,6 @@ public class DashboardActivity extends AppCompatActivity
             }
         }
 
-//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-//
-//        // we will get a DatabaseReference for the database root node
-//        DatabaseReference databaseReference = firebaseDatabase.getReference();
-//
-//
-//        DatabaseReference getImage = databaseReference.child(userKey);
-//
-//        getImage.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                // getting a DataSnapshot for the location at the specified
-//                // relative path and getting in the link variable
-//                String link = dataSnapshot.getValue(String.class);
-//                Log.d(TAG,"YERHJE"+link);
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Toast.makeText(DashboardActivity.this, "Error Loading Image", Toast.LENGTH_SHORT).show();
-//            }
-//
-//        });
-//
-//        profileImage.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                boolean pick = true;
-//
-//                if (pick == true) {
-//
-//                    if (!checkCameraPermission()) {
-//                        requestCameraPermission();
-//                    } else {
-//                        pickImage(v);
-//                    }
-//
-//                } else {
-//                    if (!checkStoragePermission()) {
-//                        requestStoragePermission();
-//                    } else {
-//                        pickImage(v);
-//                    }
-//                }
-//            }
-//        });
 
 
 
@@ -403,52 +355,6 @@ public class DashboardActivity extends AppCompatActivity
         }
     }
 
-    //
-    // @Override
-    // public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    // super.onActivityResult(requestCode, resultCode, data);
-    // if (requestCode == PICK_IMAGE) {
-    // try {
-    // final Uri imageUri = data.getData();
-    // final InputStream imageStream =
-    // getContentResolver().openInputStream(imageUri);
-    // Log.d("Tag in cam uri", imageUri.toString());
-    // Log.d("Tag in cam", imageStream.toString());
-    // final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-    // profileImage.setImageBitmap(selectedImage);
-    //
-    // StorageReference childRef = storageReference.child("image.jpg");
-    //
-    // //uploading the image
-    //// UploadTask uploadTask = childRef.putFile(filePath);
-    ////
-    ////
-    ////
-    //// storageReference.child("images/"+ UUID.randomUUID().toString()");
-    //
-    //
-    // childRef.putFile(imageUri).addOnSuccessListener(
-    // new OnSuccessListener<UploadTask.TaskSnapshot>() {
-    // @Override
-    // public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-    // Snackbar.make(findViewById(R.id.scrollViewDash),
-    // "www.journaldev.com", Snackbar.LENGTH_LONG).show();
-    // }
-    // })
-    // .addOnFailureListener(new OnFailureListener() {
-    // @Override
-    // public void onFailure(@NonNull Exception e) {
-    // Snackbar.make(findViewById(R.id.scrollViewDash),
-    // "Failsss", Snackbar.LENGTH_LONG).show();
-    // }
-    // });
-    //
-    // } catch (FileNotFoundException e) {
-    // e.printStackTrace();
-    // Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG).show();
-    // }
-    // }
-    // }
 
     private void requestStoragePermission() {
         requestPermissions(new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE }, 100);
@@ -732,13 +638,40 @@ public class DashboardActivity extends AppCompatActivity
                             && Objects.equals(documentSnapshot.get("password"), currentPassword)) {
                         heyUsername.setText("Hello " + documentSnapshot.getString("userName"));
                         scoreView.setText(documentSnapshot.get("userScore").toString());
+                        profilePicKey = documentSnapshot.getString("profilePictureID");
                         break;
                     }
-                    //documentReference[0] = db.collection("users").document()
                 }
             }
 
         });
+
+        // Getting the reference of the storage for firebase store.
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReferenceFromUrl("gs://duofingo-58001.appspot.com/");
+
+        // Passing the profile key to pick the image file reference.
+        StorageReference childRefNew = storageReference.child(profilePicKey);
+
+        try {
+            File localfile = File.createTempFile("tempfile", ".jpg");
+            childRefNew.getFile(localfile)
+                    .addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            // Convert the file to bitmap.
+                            Bitmap bitmap = BitmapFactory.decodeFile(localfile.getAbsolutePath());
+                            // Convert the bitmap image to drawable -
+                            // Only drawable is accepted for chip image.
+                            Drawable d = new BitmapDrawable(getResources(), bitmap);
+                            heyUsername.setChipIcon(d);
+
+                        }
+                    });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
     }
 }
