@@ -49,6 +49,8 @@ public class SpecificChapterActivity extends AppCompatActivity {
     String topic;
     String chapter;
 
+    int currentIndex;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +61,7 @@ public class SpecificChapterActivity extends AppCompatActivity {
         String currentChapter = extras.getString("chapter");
         String userName = extras.getString("userName");
         String currentTopic = extras.getString("topic");
-        int currentIndex = extras.getInt("currentIndex");
+        currentIndex = extras.getInt("currentIndex") ;
 
         chapterContentRecyclerView = findViewById(R.id.chapter_content_recycler_view);
         chapterName = findViewById(R.id.CHAPTER_NAME);
@@ -80,8 +82,8 @@ public class SpecificChapterActivity extends AppCompatActivity {
                 db.collection("user_topics").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        Integer currentDbIndex = null;
-                        Integer totalChapterCount = null;
+                        Integer currentDbIndex = 0;
+                        Integer totalChapterCount = 0;
                         List<String> arr = null;
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot documentSnapshot : task.getResult()) {
@@ -98,11 +100,16 @@ public class SpecificChapterActivity extends AppCompatActivity {
 
 
                             Log.d(TAG, "Before if statement " +currentDbIndex);
-                            if (currentIndex + 1 > currentDbIndex) {
+                            if (currentIndex < totalChapterCount && currentIndex + 1 > currentDbIndex) {
                                 Log.d(TAG, "After if statement: " + currentIndex);
                                 DocumentReference dr = db.collection("user_topics").document(Id[0]);
                                 dr.update("chapterID", currentIndex + 1);
+
+                                currentIndex++;
                                 //dr.update("completed", arr);
+                            }
+                            else if(currentIndex < totalChapterCount){
+                                currentIndex++;
                             }
 
                         }
@@ -188,14 +195,11 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                         boolean lFlag = (boolean)document.get("lastChapter");
                                         index = (Long) document.get("index");
                                         chapter = (String) document.get("heading");
-                                        System.out.println(chapter);
-                                        System.out.println(index);
 
                                         chapter_paragraphs.clear();
                                         for(String a : data) {
                                             chapter_paragraphs.add(a);
                                         }
-//                                chapter_paragraphs.add(document.get("body").);
 
                                         chapterName.setText(chapter);
                                         isLastChapter = lFlag;
@@ -219,10 +223,6 @@ public class SpecificChapterActivity extends AppCompatActivity {
                                     chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
                                     chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this, userName, currentTopic));
 
-                                    //continueReadingRV = findViewById(R.id.continueReadingRecycleView);
-                                    //continueReadingRV.setHasFixedSize(true);
-                                    //continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                                    //continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource, DashboardActivity.this, DashboardActivity.this));
 
                                 } else {
                                     System.out.println("else");
@@ -301,20 +301,18 @@ public class SpecificChapterActivity extends AppCompatActivity {
                             }
                             DocumentReference dr = db.collection("user_topics").document(Id[0]);
                             dr.update("chapterID", totalLength);
-//                            Log.d(TAG, "Before if statement " + currentDbIndex);
-//                            if (currentIndex + 1 > currentDbIndex) {
-//                                Log.d(TAG, "After if statement: " + currentIndex);
-//
-//                                DocumentReference dr = db.collection("user_topics").document(Id[0]);
-//                                dr.update("chapterID", currentIndex + 1);
-//                            }
+
+                            Intent intent = new Intent(SpecificChapterActivity.this, DashboardActivity.class);
+
+                            startActivity(intent);
+                            finish();
+
+
                         }
                     }
                 });
             }
         });
-        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(SpecificChapterActivity.this);
-        //chapterContentRecyclerView.setLayoutManager(linearLayoutManager);
-        //chapterContentRecyclerView.setAdapter(new ChapterAdapter(chapter_paragraphs, SpecificChapterActivity.this));
+
     }
 }
