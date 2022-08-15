@@ -256,8 +256,6 @@ public class DashboardActivity extends AppCompatActivity
 
         }
         getLocation();
-//        runRankingThread();
-
         dashBoardRankingRv = findViewById(R.id.dashBoardRankingRecycleView);
         dashBoardRankingRv.setHasFixedSize(true);
         dashBoardRankingRv.setLayoutManager(new LinearLayoutManager(this));
@@ -266,6 +264,8 @@ public class DashboardActivity extends AppCompatActivity
 
         topicSelect = findViewById(R.id.topic_selection);
         topicSelect.setOnClickListener(v -> openTopicSelectActivity());
+
+        runRankingThread();
 
         // dashboardDesign = findViewById(R.id.dashboard_design);
         // dashboardDesign.setOnClickListener(v -> openDashboardDesignActivity());
@@ -597,8 +597,10 @@ public class DashboardActivity extends AppCompatActivity
                     countryRanks.clear();
                     dashBoardRankingDataSource.clear();
                     dashBoardRankingGlobalDataSource.clear();
-                    dashBoardRankingRv.getAdapter().notifyDataSetChanged();
-                    dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged();
+                    if (dashBoardRankingRv != null)
+                        dashBoardRankingRv.getAdapter().notifyDataSetChanged();
+                    if (dashBoardRankingGlobalRv != null)
+                        dashBoardRankingGlobalRv.getAdapter().notifyDataSetChanged();
                     progressBar.setVisibility(View.VISIBLE);
                 });
 
@@ -632,7 +634,6 @@ public class DashboardActivity extends AppCompatActivity
 
                         dashBoardRankingDataSource.add(new CountryRankingDataSourceSet(current.name, rank.toString()));
                     }
-
 
                     db.collection("users")
                             .orderBy("userScore", Query.Direction.DESCENDING)
@@ -692,7 +693,6 @@ public class DashboardActivity extends AppCompatActivity
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (DocumentSnapshot document : task.getResult()) {
-
                                 continueReadingDataSource.add(
                                         new ContinueReadingDataSource(
                                                 document.get("chapterID").toString(),
@@ -700,7 +700,6 @@ public class DashboardActivity extends AppCompatActivity
                                                 document.get("chapterID").toString(),
                                                 document.get("total_chapters").toString(),
                                                 document.get("userID").toString()));
-
                             }
                             if(continueReadingDataSource.size() == 0) {
                                 continueReadingTextNoDataView.setVisibility(View.VISIBLE);
@@ -711,8 +710,9 @@ public class DashboardActivity extends AppCompatActivity
 
                             continueReadingRV = findViewById(R.id.continueReadingRecycleView);
                             continueReadingRV.setHasFixedSize(true);
-                            continueReadingRV.setLayoutManager(new LinearLayoutManager(DashboardActivity.this,
-                                    LinearLayoutManager.HORIZONTAL, false));
+                            continueReadingRV.setLayoutManager(new LinearLayoutManager(
+                                    DashboardActivity.this, LinearLayoutManager.HORIZONTAL,
+                                    false));
                             continueReadingRV.setAdapter(new MyContinueReadingAdapter(continueReadingDataSource,
                                     DashboardActivity.this, DashboardActivity.this));
 

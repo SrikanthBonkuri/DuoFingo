@@ -127,18 +127,6 @@
         app:layout_constraintTop_toBottomOf="@+id/signup_full_name" />
 
     <ImageView
-        android:id="@+id/imageView6"
-        android:layout_width="112dp"
-        android:layout_height="86dp"
-        android:layout_marginStart="4dp"
-        android:background="#00ACC1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.048"
-        app:srcCompat="@drawable/fui_ic_anonymous_white_24dp" />
-
-    <ImageView
         android:id="@+id/imageView7"
         android:layout_width="399dp"
         android:layout_height="180dp"
