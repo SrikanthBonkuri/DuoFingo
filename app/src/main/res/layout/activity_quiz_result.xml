@@ -68,13 +68,14 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+
             <TextView
                 android:id="@+id/tvScore"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="12dp"
-                android:text="Score: 0"
+                android:text="Total: 10"
                 android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -108,7 +109,7 @@
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
-        <TextView
+        <!--<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -118,8 +119,8 @@
             android:text="Share Score"
             android:textColor="@android:color/black"
             android:textSize="18sp"
-            android:textStyle="bold" />
-        <TextView
+            android:textStyle="bold" />-->
+        <!--<TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -129,8 +130,9 @@
             android:text="Rate App"
             android:textColor="@android:color/black"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold" />-->
         <TextView
+            android:id="@+id/tvHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"

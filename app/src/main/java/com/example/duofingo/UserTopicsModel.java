@@ -1,12 +1,15 @@
 package com.example.duofingo;
 
-public class UserTopicsModel {
-    public String chapterID;
-    public String topicName;
-    public int numChapters;
-    public int userName;
+import java.util.List;
 
-    public void setChapterID(String chapterID) {
+public class UserTopicsModel {
+    public Integer chapterID;
+    public String topicName;
+    public Integer total_chapters;
+    public String userID;
+    public List<String> completed;
+
+    public void setChapterID(Integer chapterID) {
         this.chapterID = chapterID;
     }
 
@@ -14,14 +17,14 @@ public class UserTopicsModel {
         this.topicName = topicName;
     }
 
-    public void setNumChapters(int numChapters) {
-        this.numChapters = numChapters;
+    public void setNumChapters(Integer numChapters) {
+        this.total_chapters = numChapters;
     }
 
-    public void setUserName(int userName) {
-        this.userName = userName;
+    public void setUserName(String userName) {
+        this.userID = userName;
     }
 
-    public UserTopicsModel() {
-    }
+    public void setCompleted(List<String> completed) {this.completed = completed;}
+
 }

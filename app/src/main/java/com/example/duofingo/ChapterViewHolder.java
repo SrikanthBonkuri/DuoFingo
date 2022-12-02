@@ -13,6 +13,7 @@ public class ChapterViewHolder extends RecyclerView.ViewHolder{
     public RelativeLayout cardRelativeLayout;
     String actualChapterName;
 
+
     public ChapterViewHolder(@NonNull View itemView) {
         super(itemView);
 

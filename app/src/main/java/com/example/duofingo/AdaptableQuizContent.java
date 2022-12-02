@@ -24,7 +24,6 @@ public class AdaptableQuizContent {
     // get questions from the DB
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-
     ArrayList<QuestionType> stdQuestionTypes = new ArrayList<>(Arrays.asList(QuestionType.MONTHLY,
             QuestionType.WEEKLY));
 

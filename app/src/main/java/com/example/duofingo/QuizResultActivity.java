@@ -1,14 +1,12 @@
 package com.example.duofingo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-
-import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class QuizResultActivity extends AppCompatActivity {
 
@@ -18,11 +16,13 @@ public class QuizResultActivity extends AppCompatActivity {
     int skip = 0;
     boolean isKey = false;
 
-    TextView tvScore;
     TextView tvright;
     TextView tvwrong;
     TextView tvSkip;
+    TextView tvHome;
     TextView tvPlayAgain;
+
+    String userName, fullName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,17 +33,19 @@ public class QuizResultActivity extends AppCompatActivity {
         totalScore = intent.getIntExtra("correct", 0);
         wrong = intent.getIntExtra("wrong", 0);
         skip = intent.getIntExtra("skip", 0);
+        userName = intent.getStringExtra("userName");
+        fullName = intent.getStringExtra("fullName");
 
-        tvScore = findViewById(R.id.tvScore);
+        tvHome = findViewById(R.id.tvHome);
         tvright = findViewById(R.id.tvright);
         tvwrong = findViewById(R.id.tvwrong);
         tvSkip = findViewById(R.id.tvSkip);
         tvPlayAgain = findViewById(R.id.tvPlayAgain);
 
-        tvScore.setText("Score: " + totalScore);
         tvright.setText("Correct: " + totalScore);
         tvwrong.setText("Wrong: " + wrong);
         tvSkip.setText("Skip: " + skip);
+
         if (totalScore >= 6) {
             Toast.makeText(this, "Wow Great", Toast.LENGTH_SHORT).show();
         } else {
@@ -56,5 +58,15 @@ public class QuizResultActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        tvHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(QuizResultActivity.this, DashboardActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 }

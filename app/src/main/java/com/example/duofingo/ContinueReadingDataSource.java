@@ -6,13 +6,15 @@ public class ContinueReadingDataSource {
     private final String currentChapter;
     private final String totalChapter;
 //    private final Integer chapterId;
+    private final String userName;
 
     public ContinueReadingDataSource(String chapterName, String topicName,
-                                     String currentChapter, String totalChapter) {
+                                     String currentChapter, String totalChapter, String userName) {
         this.chapterName = chapterName;
         this.topicName = topicName;
         this.currentChapter = currentChapter;
         this.totalChapter = totalChapter;
+        this.userName = userName;
     }
 
 
@@ -30,6 +32,10 @@ public class ContinueReadingDataSource {
 
     public String getTotalChapter() {
         return totalChapter;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 
 }
